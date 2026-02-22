@@ -2,68 +2,106 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遊戲周邊比價查詢系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界計畫周邊比價查詢</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
-        .container { max-width: 500px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
-        .field { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        select, input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        #result { margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; display: none; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .field { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #2980b9; }
+        #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
+        .price-info { font-size: 0.9em; color: #666; margin-top: 10px; border-top: 1px dotted #ccc; padding-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>周邊查詢模板</h2>
+    <h2>PRSK 周邊查詢工具</h2>
     
     <div class="field">
-        <label>角色名</label>
-        <select id="charName">
-            <option value="花里實乃理">花里實乃理 (Minori)</option>
-            <option value="宵崎奏">宵崎奏 (Kanade)</option>
-            <option value="曉山瑞希">曉山瑞希 (Mizuki)</option>
-        </select>
+        <label>1. 選擇角色</label>
+        <select id="charName"></select>
     </div>
 
     <div class="field">
-        <label>周邊類型</label>
-        <select id="itemType">
-            <option value="卡面ePick金簽">卡面 ePick 金簽</option>
-            <option value="卡面厚磚">卡面厚磚</option>
-            <option value="徽章">徽章 (缶バッジ)</option>
-        </select>
+        <label>2. 周邊類型</label>
+        <select id="itemType"></select>
     </div>
 
     <div class="field">
-        <label>第幾彈 / 柄圖名稱 (手動輸入)</label>
-        <input type="text" id="series" placeholder="例如: DP 或 vol.1">
+        <label>3. 第幾彈 / 柄圖名稱</label>
+        <input type="text" id="series" placeholder="例如: vol.10 或 DP">
     </div>
 
     <button onclick="generateQuery()">生成查詢資訊</button>
 
     <div id="result">
-        <strong>生成的商品名稱：</strong><br>
-        <span id="outputName"></span><br><br>
-        <strong>台灣市場計算方式：</strong><br>
-        <span>採樣邏輯：眾數 (Mode)</span>
+        <strong>命名模板結果：</strong><br>
+        <span id="outputName" style="font-size: 1.2em; color: #e74c3c; font-weight: bold;"></span>
+        
+        <div class="price-info">
+            💡 <strong>台灣行情計算：</strong> 眾數 (Mode) 採樣中<br>
+            ⚠️ 警惕低於市價過多的盜版商品。
+        </div>
     </div>
 </div>
 
 <script>
-    function generateQuery() {
-        const char = document.getElementById('charName').value;
-        const type = document.getElementById('itemType').value;
-        const series = document.getElementById('series').value;
-        
-        // 組合命名模板
-        const fullName = `${char}-${type}-${series}`;
-        
-        document.getElementById('outputName').innerText = fullName;
-        document.getElementById('result').style.display = 'block';
-    }
+// --- 這裡可以隨時修改清單 ---
+const characters = [
+    "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO",
+    "星乃一歌", "天馬咲希", "望月穗波", "日野森志步",
+    "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫",
+    "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌",
+    "天馬司", "鳳笑夢", "草薙寧寧", "神代類",
+    "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"
+];
+
+const itemTypes = [
+    "卡面ePick", "卡面ePick金簽", "卡面厚磚", "色紙", 
+    "拍立得", "徽章", "壓克力立牌", "吊飾", 
+    "糯糯福娃 (もちマス)", "坐姿娃娃"
+];
+// --------------------------
+
+// 自動填入選單內容
+function setup() {
+    const charSelect = document.getElementById('charName');
+    const itemSelect = document.getElementById('itemType');
+
+    characters.forEach(name => {
+        let opt = document.createElement('option');
+        opt.value = name;
+        opt.innerHTML = name;
+        charSelect.appendChild(opt);
+    });
+
+    itemTypes.forEach(type => {
+        let opt = document.createElement('option');
+        opt.value = type;
+        opt.innerHTML = type;
+        itemSelect.appendChild(opt);
+    });
+}
+
+function generateQuery() {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('series').value;
+    
+    // 生成最終名稱
+    const fullName = `${char}-${type}-${series}`;
+    
+    document.getElementById('outputName').innerText = fullName;
+    document.getElementById('result').style.display = 'block';
+}
+
+// 執行初始化
+setup();
 </script>
 
 </body>
