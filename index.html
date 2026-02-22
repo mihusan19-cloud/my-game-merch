@@ -17,7 +17,8 @@
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
         .report-link:hover { background-color: #3498db; color: white; }
-        .loading { color: #888; font-style: italic; }
+        .helper-link { display: block; text-align: center; margin-top: 15px; color: #666; font-size: 0.85em; text-decoration: none; }
+        .helper-link:hover { text-decoration: underline; color: #3498db; }
     </style>
 </head>
 <body>
@@ -42,6 +43,10 @@
 
     <button onclick="generateQuery()">查詢社團行情</button>
 
+    <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
+        🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
+    </a>
+
     <div id="result">
         <strong>查詢商品：</strong><br>
         <span id="outputName" style="font-weight: bold;"></span><br>
@@ -50,11 +55,11 @@
         
         <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
 
-        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; pt: 10px;">
+        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
             💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
         </div>
         
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSecwJpTHFVzWtuCJzrgee5Do9pcjoW4sv2hZh2YVH0fsacjOA/viewform?usp=publish-editor" target="_blank" class="report-link">➕ 我要回報成交價</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSecwJpTHFVzWtuCJzrgee5Do9pcjoW4sv2hZh2YVH0fsacjOA/viewform?usp=header" target="_blank" class="report-link">➕ 我要回報成交價</a>
     </div>
 </div>
 
@@ -72,25 +77,24 @@ async function loadData() {
     try {
         const response = await fetch(csvUrl);
         const data = await response.text();
-        // 解析 CSV (假設第一欄是商品名，第二欄是價格)
-        const rows = data.split('\n').slice(1); // 跳過標題列
+        const rows = data.split('\n').slice(1); 
         marketData = rows.map(row => {
             const cols = row.split(',');
+            // CSV 欄位對應：cols[1] 是商品全名, cols[2] 是價格
             return { name: cols[1]?.trim(), price: parseInt(cols[2]?.trim()) };
         });
-        console.log("數據載入成功，共 " + marketData.length + " 筆");
+        console.log("數據載入成功");
     } catch (e) {
         console.error("無法讀取數據:", e);
     }
 }
 
-// 計算眾數的函式
+// 計算眾數
 function getMode(arr) {
     if (arr.length === 0) return null;
     const modeMap = {};
     let maxCount = 0;
     let modes = [];
-
     arr.forEach(val => {
         modeMap[val] = (modeMap[val] || 0) + 1;
         if (modeMap[val] > maxCount) {
@@ -100,7 +104,6 @@ function getMode(arr) {
             modes.push(val);
         }
     });
-    // 如果有多個眾數，取平均值或第一個。這裡取第一個。
     return modes[0];
 }
 
@@ -112,7 +115,6 @@ function generateQuery() {
     
     document.getElementById('outputName').innerText = fullName;
     
-    // 過濾出符合該商品的價格清單
     const prices = marketData
         .filter(item => item.name === fullName && !isNaN(item.price))
         .map(item => item.price);
@@ -132,10 +134,6 @@ function generateQuery() {
     document.getElementById('result').style.display = 'block';
 }
 
-// 啟動載入
-setup();
-loadData();
-
 function setup() {
     const charSelect = document.getElementById('charName');
     const itemSelect = document.getElementById('itemType');
@@ -150,6 +148,9 @@ function setup() {
         itemSelect.appendChild(opt);
     });
 }
+
+setup();
+loadData();
 </script>
 
 </body>
