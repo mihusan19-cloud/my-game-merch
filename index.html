@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>世界計畫周邊比價查詢</title>
+    <title>世界計畫社團行情比價</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -14,13 +14,16 @@
         button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         button:hover { background-color: #2980b9; }
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
-        .price-info { font-size: 0.9em; color: #666; margin-top: 10px; border-top: 1px dotted #ccc; padding-top: 10px; }
+        .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
+        .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
+        .report-link:hover { background-color: #3498db; color: white; }
+        .loading { color: #888; font-style: italic; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>PJSK 周邊查詢工具</h2>
+    <h2>PRSK 社團行情查詢</h2>
     
     <div class="field">
         <label>1. 選擇角色</label>
@@ -34,74 +37,119 @@
 
     <div class="field">
         <label>3. 第幾彈 / 柄圖名稱</label>
-        <input type="text" id="series" placeholder="例如: vol.1 或 新團服">
+        <input type="text" id="series" placeholder="例如: vol.10 或 DP">
     </div>
 
-    <button onclick="generateQuery()">生成查詢資訊</button>
+    <button onclick="generateQuery()">查詢社團行情</button>
 
     <div id="result">
-        <strong>命名模板結果：</strong><br>
-        <span id="outputName" style="font-size: 1.2em; color: #e74c3c; font-weight: bold;"></span>
+        <strong>查詢商品：</strong><br>
+        <span id="outputName" style="font-weight: bold;"></span><br>
         
-        <div class="price-info">
-            💡 <strong>台灣行情計算：</strong> 眾數 (Mode) 採樣中<br>
-            ⚠️ 警惕低於市價過多的盜版商品。
+        <div id="priceOutput" class="price-tag">讀取中...</div>
+        
+        <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
+
+        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; pt: 10px;">
+            💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
         </div>
+        
+        <a href="https://forms.gle/你的表單代碼" target="_blank" class="report-link">➕ 我要回報成交價</a>
     </div>
 </div>
 
 <script>
-// --- 這裡可以隨時修改清單 ---
-const characters = [
-    "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO",
-    "星乃一歌", "天馬咲希", "望月穗波", "日野森志步",
-    "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫",
-    "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌",
-    "天馬司", "鳳笑夢", "草薙寧寧", "神代類",
-    "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"
-];
+const characters = ["初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
+const itemTypes = ["卡面ePick", "卡面ePick金簽", "卡面厚磚", "色紙", "拍立得", "徽章", "壓克力立牌", "吊飾", "糯糯福娃 (もちマス)", "坐姿娃娃"];
 
-const itemTypes = [
-    "卡面ePick", "卡面ePick金簽", "卡面厚磚", "色紙", 
-    "拍立得", "徽章", "壓克力立牌", "吊飾", 
-    "糯糯福娃 (もちマス)", "坐姿娃娃"
-];
-// --------------------------
+// 你的 CSV 連結
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?gid=521627445&single=true&output=csv";
 
-// 自動填入選單內容
-function setup() {
-    const charSelect = document.getElementById('charName');
-    const itemSelect = document.getElementById('itemType');
+let marketData = [];
 
-    characters.forEach(name => {
-        let opt = document.createElement('option');
-        opt.value = name;
-        opt.innerHTML = name;
-        charSelect.appendChild(opt);
+// 初始化：載入 CSV 數據
+async function loadData() {
+    try {
+        const response = await fetch(csvUrl);
+        const data = await response.text();
+        // 解析 CSV (假設第一欄是商品名，第二欄是價格)
+        const rows = data.split('\n').slice(1); // 跳過標題列
+        marketData = rows.map(row => {
+            const cols = row.split(',');
+            return { name: cols[1]?.trim(), price: parseInt(cols[2]?.trim()) };
+        });
+        console.log("數據載入成功，共 " + marketData.length + " 筆");
+    } catch (e) {
+        console.error("無法讀取數據:", e);
+    }
+}
+
+// 計算眾數的函式
+function getMode(arr) {
+    if (arr.length === 0) return null;
+    const modeMap = {};
+    let maxCount = 0;
+    let modes = [];
+
+    arr.forEach(val => {
+        modeMap[val] = (modeMap[val] || 0) + 1;
+        if (modeMap[val] > maxCount) {
+            maxCount = modeMap[val];
+            modes = [val];
+        } else if (modeMap[val] === maxCount) {
+            modes.push(val);
+        }
     });
-
-    itemTypes.forEach(type => {
-        let opt = document.createElement('option');
-        opt.value = type;
-        opt.innerHTML = type;
-        itemSelect.appendChild(opt);
-    });
+    // 如果有多個眾數，取平均值或第一個。這裡取第一個。
+    return modes[0];
 }
 
 function generateQuery() {
     const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
     const series = document.getElementById('series').value;
-    
-    // 生成最終名稱
     const fullName = `${char}-${type}-${series}`;
     
     document.getElementById('outputName').innerText = fullName;
+    
+    // 過濾出符合該商品的價格清單
+    const prices = marketData
+        .filter(item => item.name === fullName && !isNaN(item.price))
+        .map(item => item.price);
+
+    const priceOutput = document.getElementById('priceOutput');
+    const dataCount = document.getElementById('dataCount');
+
+    if (prices.length > 0) {
+        const modePrice = getMode(prices);
+        priceOutput.innerText = `NT$ ${modePrice}`;
+        dataCount.innerText = `(根據 ${prices.length} 筆回報計算)`;
+    } else {
+        priceOutput.innerText = "NT$ ---";
+        dataCount.innerText = "(目前尚無回報數據)";
+    }
+    
     document.getElementById('result').style.display = 'block';
 }
 
-// 執行初始化
+// 啟動載入
 setup();
+loadData();
+
+function setup() {
+    const charSelect = document.getElementById('charName');
+    const itemSelect = document.getElementById('itemType');
+    characters.forEach(name => {
+        let opt = document.createElement('option');
+        opt.value = name; opt.innerHTML = name;
+        charSelect.appendChild(opt);
+    });
+    itemTypes.forEach(type => {
+        let opt = document.createElement('option');
+        opt.value = type; opt.innerHTML = type;
+        itemSelect.appendChild(opt);
+    });
+}
 </script>
 
 </body>
