@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>世界計畫社團行情比價<Beta></title>
+    <title>世界計畫社團行情比價</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -19,6 +19,14 @@
         .report-link:hover { background-color: #3498db; color: white; }
         .helper-link { display: block; text-align: center; margin-top: 15px; color: #666; font-size: 0.85em; text-decoration: none; }
         .helper-link:hover { text-decoration: underline; color: #3498db; }
+        
+        /* 新增文字區塊樣式 */
+        .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
+        .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
+        .notion-box { margin-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
+        .notion-link { color: #2ecc71; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .notion-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -37,42 +45,52 @@
     </div>
 
     <div class="field">
-        <label>3. 第幾彈  </label>
+        <label>3. 第幾彈 / </label>
         <input type="text" id="series" placeholder="例如: vol.1">
     </div>
 
     <button onclick="generateQuery()">查詢社團行情</button>
 
-    <a href=`"https://luki-dex.github.io/prsk-good/"` target="_blank" class="helper-link">
+    <a href='"https://luki-dex.github.io/prsk-good/"' target="_blank" class="helper-link" style="display: none;">
         🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
     </a>
 
     <div id="result">
         <strong>查詢商品：</strong><br>
         <span id="outputName" style="font-weight: bold;"></span><br>
-        
         <div id="priceOutput" class="price-tag">讀取中...</div>
-        
         <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
-
         <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
             💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
         </div>
-        
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSecwJpTHFVzWtuCJzrgee5Do9pcjoW4sv2hZh2YVH0fsacjOA/viewform?usp=header" target="_blank" class="report-link">➕ 我要回報成交價</a>
- </div> 
+    </div>
+
+    <div class="info-footer">
+        <h3>📌 使用小提醒</h3>
+        <p>
+            1. 查詢時請確保「柄圖名稱」輸入正確，以免抓不到數據。<br>
+            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
+            3. 若發現異常數據，歡迎透過表單回報修正。
+        </p>
+
+        <div class="notion-box">
+            <strong>🚀 未來優化方向：</strong><br>
+            <a href="https://www.notion.so/PJSK-30f93c2c21bc807088ecef8647419aba?source=copy_link" target="_blank" class="notion-link">
+                查看開發路徑與優化清單 (Notion)
+            </a>
+        </div>
+    </div>
 </div>
 
 <script>
 const characters = ["初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
 const itemTypes = ["卡面ePick", "卡面ePick金簽", "卡面厚磚", "色紙", "拍立得", "徽章", "壓克力立牌", "吊飾", "糯糯福娃 (もちマス)", "坐姿娃娃"];
 
-// 你的 CSV 連結
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?gid=521627445&single=true&output=csv";
 
 let marketData = [];
 
-// 初始化：載入 CSV 數據
 async function loadData() {
     try {
         const response = await fetch(csvUrl);
@@ -80,7 +98,6 @@ async function loadData() {
         const rows = data.split('\n').slice(1); 
         marketData = rows.map(row => {
             const cols = row.split(',');
-            // CSV 欄位對應：cols[1] 是商品全名, cols[2] 是價格
             return { name: cols[1]?.trim(), price: parseInt(cols[2]?.trim()) };
         });
         console.log("數據載入成功");
@@ -89,7 +106,6 @@ async function loadData() {
     }
 }
 
-// 計算眾數
 function getMode(arr) {
     if (arr.length === 0) return null;
     const modeMap = {};
