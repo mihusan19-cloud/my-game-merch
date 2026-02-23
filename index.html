@@ -10,17 +10,15 @@
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
         .field { margin-bottom: 20px; }
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         button:hover { background-color: #2980b9; }
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
         .report-link:hover { background-color: #3498db; color: white; }
-        .helper-link { display: block; text-align: center; margin-top: 15px; color: #666; font-size: 0.85em; text-decoration: none; }
-        .helper-link:hover { text-decoration: underline; color: #3498db; }
-        
-        /* 新增文字區塊樣式 */
+        .helper-link { display: block; text-align: center; margin-top: 20px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link:hover { text-decoration: underline; }
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
@@ -45,13 +43,23 @@
     </div>
 
     <div class="field">
-        <label>3. 第幾彈  </label>
-        <input type="text" id="series" placeholder="例如: vol.1">
+        <label>3. 第幾彈</label>
+        <select id="seriesSelect"></select>
+    </div>
+
+    <div class="field">
+        <label>4. 分盒類型</label>
+        <select id="boxType">
+            <option value="">無分盒</option>
+            <option value="A">A 盒</option>
+            <option value="B">B 盒</option>
+            <option value="C">C 盒</option>
+        </select>
     </div>
 
     <button onclick="generateQuery()">查詢社團行情</button>
 
-    <a href='"https://luki-dex.github.io/prsk-good/"' target="_blank" class="helper-link" style="display: none;">
+    <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
         🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
     </a>
 
@@ -69,16 +77,15 @@
     <div class="info-footer">
         <h3>📌 使用小提醒</h3>
         <p>
-            1. 查詢時請確保「柄圖名稱」輸入正確，以免抓不到數據。<br>
+            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
             2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
-            3. 若發現異常數據，歡迎透過表單回報修正。<br>
-            4. 目前數據只採計到至去年12月前發售的東西。
+            3. 若發現異常數據，歡迎透過表單回報修正。
         </p>
 
         <div class="notion-box">
-            <strong>🚀 未來優化方向：</strong><br>
-            <a href="https://docs.google.com/document/d/1WNH5c6sQtNroPKYVR9nwL5XYkQgWSpB4fOQlIGCtGAo/edit?usp=sharing" target="_blank" class="notion-link">
-                查看開發路徑與優化清單
+            <strong>查看開發路徑與優化清單：</strong><br>
+            <a href="https://www.notion.so/PJSK-30f93c2c21bc807088ecef8647419aba?source=copy_link" target="_blank" class="notion-link">
+                點擊前往 Notion 頁面
             </a>
         </div>
     </div>
@@ -87,6 +94,12 @@
 <script>
 const characters = ["初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
 const itemTypes = ["卡面ePick", "卡面ePick金簽", "卡面厚磚", "色紙", "拍立得", "徽章", "壓克力立牌", "吊飾", "糯糯福娃 (もちマス)", "坐姿娃娃"];
+
+// 生成 vol.1 ~ vol.66 的選單數據
+const seriesOptions = [];
+for (let i = 1; i <= 66; i++) {
+    seriesOptions.push(`vol.${i}`);
+}
 
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?gid=521627445&single=true&output=csv";
 
@@ -127,8 +140,14 @@ function getMode(arr) {
 function generateQuery() {
     const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
-    const series = document.getElementById('series').value;
-    const fullName = `${char}-${type}-${series}`;
+    const series = document.getElementById('seriesSelect').value;
+    const box = document.getElementById('boxType').value;
+    
+    // 組合名稱邏輯：如果選了分盒，就加上分盒後綴
+    let fullName = `${char}-${type}-${series}`;
+    if(box) {
+        fullName += `-${box}`;
+    }
     
     document.getElementById('outputName').innerText = fullName;
     
@@ -154,6 +173,8 @@ function generateQuery() {
 function setup() {
     const charSelect = document.getElementById('charName');
     const itemSelect = document.getElementById('itemType');
+    const seriesSelect = document.getElementById('seriesSelect');
+
     characters.forEach(name => {
         let opt = document.createElement('option');
         opt.value = name; opt.innerHTML = name;
@@ -163,6 +184,11 @@ function setup() {
         let opt = document.createElement('option');
         opt.value = type; opt.innerHTML = type;
         itemSelect.appendChild(opt);
+    });
+    seriesOptions.forEach(vol => {
+        let opt = document.createElement('option');
+        opt.value = vol; opt.innerHTML = vol;
+        seriesSelect.appendChild(opt);
     });
 }
 
