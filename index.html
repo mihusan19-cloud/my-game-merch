@@ -9,19 +9,27 @@
         .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
         
-        .field { margin-bottom: 20px; display: none; } /* 初始隱藏 */
-        #field-char { display: block; } /* 僅顯示第一步 */
+        .field { margin-bottom: 20px; display: none; } 
+        #field-char { display: block; } 
         
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
         
-        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
-        button:hover { background-color: #2980b9; }
+        button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
+        button#submitBtn:hover { background-color: #2980b9; }
         
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
+        
+        .copy-btn { padding: 4px 8px; background-color: #95a5a6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 10px; }
+        .copy-btn:hover { background-color: #7f8c8d; }
+
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
-        .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 14px; color: #777; }
+        .report-link:hover { background-color: #3498db; color: white; }
+        
+        .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
+        .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
     </style>
 </head>
 <body>
@@ -70,7 +78,8 @@
 
     <div id="result">
         <strong>查詢商品：</strong><br>
-        <span id="outputName" style="font-weight: bold;"></span><br>
+        <span id="outputName" style="font-weight: bold; color: #2c3e50;"></span>
+        <button class="copy-btn" onclick="copyName()">複製名稱回報</button>
         <div id="priceOutput" class="price-tag">讀取中...</div>
         <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
         <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
@@ -81,41 +90,34 @@
 
     <div class="info-footer">
         <h3>📌 使用小提醒</h3>
-        <p>1. 查詢時請確保選單選項正確。<br>2. 價格僅供參考，實際交易請以社團為準。</p>
+        <p>
+            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
+            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
+            3. 若發現異常數據，歡迎透過表單回報修正。<br>
+            4. 感謝プロセカ週邊圖鑑授權使用
+        </p>
     </div>
 </div>
 
 <script>
-// 角色清單加入團體
-const characters = [
-    "Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見",
-    "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", 
-    "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", 
-    "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"
-];
-
-const itemTypes = [
-    "卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "壓克力立牌", "吊飾", "其他卡面徽章", "活動牌", "坐姿娃娃"
-];
+const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
+const itemTypes = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "壓克力立牌", "吊飾", "其他卡面徽章", "活動牌", "坐姿娃娃"];
 
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?output=csv";
 let marketData = [];
 
-// 控制流程邏輯
 function updateFlow(step) {
     const type = document.getElementById('itemType').value;
     const char = document.getElementById('charName').value;
-    
-    // 重置後續隱藏
-    const hideFrom = (idList) => idList.forEach(id => document.getElementById(id).style.display = 'none');
+    const hideFrom = (list) => list.forEach(id => document.getElementById(id).style.display = 'none');
 
     if (step === 'char' && char) {
         document.getElementById('field-type').style.display = 'block';
     } 
     else if (step === 'type') {
         hideFrom(['field-series', 'field-flower', 'field-box', 'submitBtn']);
-        if (type) {
-            updateSeriesOptions(type);
+        if (document.getElementById('itemType').value) {
+            updateSeriesOptions(document.getElementById('itemType').value);
             document.getElementById('field-series').style.display = 'block';
         }
     } 
@@ -123,14 +125,11 @@ function updateFlow(step) {
         hideFrom(['field-flower', 'field-box', 'submitBtn']);
         if (type === '色紙') {
             document.getElementById('field-flower').style.display = 'block';
+        } else if (type === '卡面厚磚') {
+            document.getElementById('submitBtn').style.display = 'block';
         } else {
             updateBoxOptions(type);
-            // 厚磚無分盒，直接出按鈕
-            if (type === '卡面厚磚') {
-                document.getElementById('submitBtn').style.display = 'block';
-            } else {
-                document.getElementById('field-box').style.display = 'block';
-            }
+            document.getElementById('field-box').style.display = 'block';
         }
     }
     else if (step === 'flower') {
@@ -142,44 +141,45 @@ function updateFlow(step) {
     }
 }
 
-// 動態彈數範圍
 function updateSeriesOptions(type) {
     const seriesSelect = document.getElementById('seriesSelect');
     seriesSelect.innerHTML = '<option value="">請選擇彈數...</option>';
-    let maxVol = 66; // 預設
+    let max = 66;
+    if (type.includes("ePick")) max = 26;
+    else if (type === "卡面厚磚") max = 72;
+    else if (type === "徽章") max = 50;
+    else if (type === "色紙") max = 59;
+    else if (type === "壓克力立牌") max = 30;
+    else if (type === "吊飾") max = 21;
+    else if (type === "其他卡面徽章") max = 10;
+    else if (type === "活動牌") max = 18;
 
-    if (type.includes("ePick")) maxVol = 26;
-    else if (type === "卡面厚磚") maxVol = 72;
-    else if (type === "徽章") maxVol = 50;
-    else if (type === "色紙") maxVol = 59;
-    else if (type === "壓克力立牌") maxVol = 30;
-    else if (type === "吊飾") maxVol = 21;
-    else if (type === "其他卡面徽章") maxVol = 10;
-    else if (type === "活動牌") maxVol = 18;
-
-    document.getElementById('seriesLabel').innerText = `3. 第幾彈 (範圍 vol.1~vol.${maxVol})`;
-    for (let i = 1; i <= maxVol; i++) {
+    document.getElementById('seriesLabel').innerText = `3. 第幾彈 (範圍 vol.1~vol.${max})`;
+    for (let i = 1; i <= max; i++) {
         let opt = document.createElement('option');
         opt.value = `vol.${i}`; opt.innerHTML = `vol.${i}`;
         seriesSelect.appendChild(opt);
     }
 }
 
-// 動態分盒選項
 function updateBoxOptions(type) {
     const boxSelect = document.getElementById('boxType');
     boxSelect.innerHTML = '<option value="">無分盒 (直接查詢)</option>';
-    
-    let options = [];
-    if (type === "活動牌") options = ["A", "B"];
-    else if (type === "其他卡面徽章") options = ["A", "B", "特典"];
-    else if (type !== "卡面厚磚") options = ["A", "B", "C"];
-
-    options.forEach(optVal => {
-        let opt = document.createElement('option');
-        opt.value = optVal; opt.innerHTML = `${optVal} 盒`;
-        boxSelect.appendChild(opt);
+    let opts = [];
+    if (type === "活動牌") opts = ["A", "B"];
+    else if (type === "其他卡面徽章") opts = ["A", "B", "特典"];
+    else if (type !== "卡面厚磚") opts = ["A", "B", "C"];
+    opts.forEach(v => {
+        let o = document.createElement('option');
+        o.value = v; o.innerHTML = `${v} 盒`;
+        boxSelect.appendChild(o);
     });
+}
+
+function copyName() {
+    const name = document.getElementById('outputName').innerText;
+    navigator.clipboard.writeText(name);
+    alert("已複製商品名稱：" + name);
 }
 
 function generateQuery() {
@@ -189,7 +189,6 @@ function generateQuery() {
     const flower = document.getElementById('flowerType').value;
     const box = document.getElementById('boxType').value;
 
-    // 組合全名：角色-類型-彈數(-花前後)(-分盒)
     let parts = [char, type, series];
     if (type === '色紙' && flower) parts.push(flower);
     if (box) parts.push(box);
@@ -197,24 +196,20 @@ function generateQuery() {
     let fullName = parts.join('-');
     document.getElementById('outputName').innerText = fullName;
     
-    const prices = marketData
-        .filter(item => item.name === fullName && !isNaN(item.price))
-        .map(item => item.price);
-
-    const priceOutput = document.getElementById('priceOutput');
-    const dataCount = document.getElementById('dataCount');
+    const prices = marketData.filter(i => i.name === fullName && !isNaN(i.price)).map(i => i.price);
+    const pOut = document.getElementById('priceOutput');
+    const dOut = document.getElementById('dataCount');
 
     if (prices.length > 0) {
-        const modeMap = {}; let maxCount = 0, modePrice = prices[0];
+        const modeMap = {}; let max = 0, mode = prices[0];
         prices.forEach(p => {
             modeMap[p] = (modeMap[p] || 0) + 1;
-            if(modeMap[p] > maxCount) { maxCount = modeMap[p]; modePrice = p; }
+            if(modeMap[p] > max) { max = modeMap[p]; mode = p; }
         });
-        priceOutput.innerText = `NT$ ${modePrice}`;
-        dataCount.innerText = `(根據 ${prices.length} 筆回報計算)`;
+        pOut.innerText = `NT$ ${mode}`;
+        dOut.innerText = `(根據 ${prices.length} 筆回報計算)`;
     } else {
-        priceOutput.innerText = "NT$ ---";
-        dataCount.innerText = "(目前尚無回報數據)";
+        pOut.innerText = "NT$ ---"; dOut.innerText = "(目前尚無回報數據)";
     }
     document.getElementById('result').style.display = 'block';
 }
