@@ -27,7 +27,7 @@
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
         .report-link:hover { background-color: #3498db; color: white; }
         
-        .helper-link { display: block; text-align: center; margin-top: 20px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
         .helper-link:hover { text-decoration: underline; }
 
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
@@ -35,6 +35,25 @@
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
 
         .version-tag { position: fixed; bottom: 10px; right: 15px; font-size: 12px; color: #ccc; user-select: none; }
+
+        /* 小客服懸浮球樣式 */
+        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
+        .chat-widget:hover { transform: scale(1.1); }
+        .chat-widget img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; }
+        .chat-widget::after { content: "有話想說?"; position: absolute; top: -30px; left: -10px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 4px 8px; border-radius: 10px; white-space: nowrap; }
+
+        /* 小客服對話框樣式 */
+        .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; box-sizing: border-box; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chat-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .chat-modal-header h4 { margin: 0; color: #3498db; }
+        .close-chat { cursor: pointer; font-size: 20px; color: #999; }
+        .close-chat:hover { color: #333; }
+        
+        .chat-modal-content { font-size: 13px; line-height: 1.6; color: #555; max-height: 350px; overflow-y: auto; }
+        .chat-modal-links { margin-top: 15px; }
+        .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-bottom: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -57,7 +76,7 @@
     </div>
 
     <div class="field" id="field-series">
-        <label id="seriesLabel">3. 第幾彈 (例如: vol.1)</label>
+        <label id="seriesLabel">3. 第幾彈 / 例如: vol.1</label>
         <select id="seriesSelect" onchange="updateFlow('series')">
             <option value="">請選擇彈數...</option>
         </select>
@@ -82,7 +101,7 @@
     <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
 
     <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
-        🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
+        🔍 前往「PJSK 周邊圖鑑」查詢名稱
     </a>
 
     <div id="result">
@@ -103,15 +122,41 @@
             1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
             2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
             3. 若發現異常數據，歡迎透過表單回報修正。<br>
-            4. 感謝プロセカ週邊圖鑑授權使用<br>
+            4. 感謝プロセカ週邊圖鑑授權使用，以及原汁原味芒果協助整理資料。<br>
             5. 再販商品請斟酌參考
         </p>
     </div>
 </div>
 
-<div class="version-tag">Beta v1.2.1</div>
+<div class="chat-widget" onclick="toggleChat()">
+    <img src="https://raw.githubusercontent.com/Luki-dex/prsk-good/main/chat-icon.jpg" alt="小客服" onerror="this.src='https://via.placeholder.com/60?text=Helper'">
+</div>
+
+<div class="chat-modal" id="chatModal">
+    <div class="chat-modal-header">
+        <h4>小客服通知</h4>
+        <span class="close-chat" onclick="toggleChat()">&times;</span>
+    </div>
+    <div class="chat-modal-content">
+        感謝大家協助回報價格。<br><br>
+        由於目前是測試階段，只會有最基本的使用，部分內容會在之後新增(如貼紙類型)及優化(如附上圖片)。<br><br>
+        另外，目前只考慮填寫第幾彈，原因是因為在中文方面太多種稱呼，數據處理起來龐大、名稱錯誤而沒計算進去，若有更好的建議歡迎提供。
+        <div class="chat-modal-links">
+            <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議點此</a>
+            <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報點此</a>
+        </div>
+    </div>
+</div>
+
+<div class="version-tag">Beta v1.2.3</div>
 
 <script>
+// 小客服開關功能
+function toggleChat() {
+    const modal = document.getElementById('chatModal');
+    modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
+}
+
 const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
 const itemTypes = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "坐姿娃娃"];
 
@@ -176,8 +221,6 @@ function updateBoxOptions(type) {
     const boxSelect = document.getElementById('boxType');
     boxSelect.innerHTML = '<option value="">無分盒 (直接查詢)</option>';
     let opts = [];
-    
-    // 修改處：將「特典」拆分為「特典A盒」與「特典B盒」
     if (type === "其他卡面徽章") {
         opts = ["A", "B", "特典A盒", "特典B盒"];
     } else if (type !== "卡面厚磚" && type !== "活動牌" && type !== "色紙") {
@@ -187,7 +230,6 @@ function updateBoxOptions(type) {
     opts.forEach(v => {
         let o = document.createElement('option');
         o.value = v; 
-        // 為了讓顯示一致，如果是 A, B, C 則加上「盒」字，如果是「特典A盒」則直接顯示
         o.innerHTML = v.length === 1 ? `${v} 盒` : v;
         boxSelect.appendChild(o);
     });
