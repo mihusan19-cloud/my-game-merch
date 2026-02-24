@@ -9,8 +9,8 @@
         .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
         
-        .field { margin-bottom: 20px; display: none; } /* 初始隱藏所有欄位 */
-        #field-char { display: block; } /* 僅顯示第一項 */
+        .field { margin-bottom: 20px; display: none; } /* 初始隱藏 */
+        #field-char { display: block; } /* 僅顯示第一步 */
         
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
@@ -21,17 +21,7 @@
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
-        .report-link:hover { background-color: #3498db; color: white; }
-        
-        .helper-link { display: block; text-align: center; margin-top: 20px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
-        .helper-link:hover { text-decoration: underline; }
-        
-        .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
-        .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
-        .notion-box { margin-top: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
-        .notion-link { color: #2ecc71; text-decoration: none; font-weight: bold; font-size: 14px; }
-        .notion-link:hover { text-decoration: underline; }
+        .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 14px; color: #777; }
     </style>
 </head>
 <body>
@@ -40,9 +30,9 @@
     <h2>PJSK 社團行情查詢</h2>
     
     <div class="field" id="field-char">
-        <label>1. 選擇角色</label>
+        <label>1. 選擇角色或團體</label>
         <select id="charName" onchange="updateFlow('char')">
-            <option value="">請選擇角色...</option>
+            <option value="">請選擇...</option>
         </select>
     </div>
 
@@ -60,21 +50,23 @@
         </select>
     </div>
 
+    <div class="field" id="field-flower">
+        <label>4. 選擇特訓狀態</label>
+        <select id="flowerType" onchange="updateFlow('flower')">
+            <option value="">請選擇...</option>
+            <option value="特訓前">特訓前 (花前)</option>
+            <option value="特訓後">特訓後 (花後)</option>
+        </select>
+    </div>
+
     <div class="field" id="field-box">
-        <label>4. 分盒類型</label>
+        <label id="boxLabel">5. 分盒/特典</label>
         <select id="boxType" onchange="updateFlow('box')">
             <option value="">無分盒 (直接查詢)</option>
-            <option value="A">A 盒</option>
-            <option value="B">B 盒</option>
-            <option value="C">C 盒</option>
         </select>
     </div>
 
     <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
-
-    <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
-        🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
-    </a>
 
     <div id="result">
         <strong>查詢商品：</strong><br>
@@ -89,71 +81,142 @@
 
     <div class="info-footer">
         <h3>📌 使用小提醒</h3>
-        <p>
-            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
-            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
-            3. 若發現異常數據，歡迎透過表單回報修正。<br>
-            4. 感謝プロセカ週邊圖鑑授權使用
-        </p>
-
-        <div class="notion-box">
-            <strong>🚀 未來優化方向：</strong><br>
-            <a href="https://docs.google.com/document/d/1WNH5c6sQtNroPKYVR9nwL5XYkQgWSpB4fOQlIGCtGAo/edit?usp=sharing" target="_blank" class="notion-link">
-                查看開發路徑與優化清單
-            </a>
-        </div>
+        <p>1. 查詢時請確保選單選項正確。<br>2. 價格僅供參考，實際交易請以社團為準。</p>
     </div>
 </div>
 
 <script>
-const characters = ["初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
-const itemTypes = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "色紙", "拍立得", "徽章", "壓克力立牌", "吊飾", "坐姿娃娃"];
+// 角色清單加入團體
+const characters = [
+    "Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見",
+    "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", 
+    "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", 
+    "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"
+];
+
+const itemTypes = [
+    "卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "壓克力立牌", "吊飾", "其他卡面徽章", "活動牌", "坐姿娃娃"
+];
 
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?output=csv";
-
 let marketData = [];
 
-// 控制下拉選單流程
+// 控制流程邏輯
 function updateFlow(step) {
-    const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
-    const series = document.getElementById('seriesSelect').value;
+    const char = document.getElementById('charName').value;
+    
+    // 重置後續隱藏
+    const hideFrom = (idList) => idList.forEach(id => document.getElementById(id).style.display = 'none');
 
-    if (step === 'char') {
-        if (char) {
-            document.getElementById('field-type').style.display = 'block';
-        }
+    if (step === 'char' && char) {
+        document.getElementById('field-type').style.display = 'block';
     } 
     else if (step === 'type') {
+        hideFrom(['field-series', 'field-flower', 'field-box', 'submitBtn']);
         if (type) {
             updateSeriesOptions(type);
             document.getElementById('field-series').style.display = 'block';
         }
     } 
     else if (step === 'series') {
-        if (series) {
-            document.getElementById('field-box').style.display = 'block';
-            document.getElementById('submitBtn').style.display = 'block'; // 彈數選完也可直接按查詢
+        hideFrom(['field-flower', 'field-box', 'submitBtn']);
+        if (type === '色紙') {
+            document.getElementById('field-flower').style.display = 'block';
+        } else {
+            updateBoxOptions(type);
+            // 厚磚無分盒，直接出按鈕
+            if (type === '卡面厚磚') {
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('field-box').style.display = 'block';
+            }
         }
+    }
+    else if (step === 'flower') {
+        updateBoxOptions(type);
+        document.getElementById('field-box').style.display = 'block';
+    }
+    else if (step === 'box') {
+        document.getElementById('submitBtn').style.display = 'block';
     }
 }
 
-// 動態更新彈數範圍
+// 動態彈數範圍
 function updateSeriesOptions(type) {
     const seriesSelect = document.getElementById('seriesSelect');
-    const label = document.getElementById('seriesLabel');
     seriesSelect.innerHTML = '<option value="">請選擇彈數...</option>';
-    
-    // 如果是 ePick 相關限制到 26，其餘 66
-    let maxVol = (type.includes("ePick")) ? 26 : 66;
-    label.innerHTML = `3. 第幾彈 (例如: vol.1，目前提供範圍 vol.1~vol.${maxVol})`;
+    let maxVol = 66; // 預設
 
+    if (type.includes("ePick")) maxVol = 26;
+    else if (type === "卡面厚磚") maxVol = 72;
+    else if (type === "徽章") maxVol = 50;
+    else if (type === "色紙") maxVol = 59;
+    else if (type === "壓克力立牌") maxVol = 30;
+    else if (type === "吊飾") maxVol = 21;
+    else if (type === "其他卡面徽章") maxVol = 10;
+    else if (type === "活動牌") maxVol = 18;
+
+    document.getElementById('seriesLabel').innerText = `3. 第幾彈 (範圍 vol.1~vol.${maxVol})`;
     for (let i = 1; i <= maxVol; i++) {
         let opt = document.createElement('option');
-        opt.value = `vol.${i}`;
-        opt.innerHTML = `vol.${i}`;
+        opt.value = `vol.${i}`; opt.innerHTML = `vol.${i}`;
         seriesSelect.appendChild(opt);
     }
+}
+
+// 動態分盒選項
+function updateBoxOptions(type) {
+    const boxSelect = document.getElementById('boxType');
+    boxSelect.innerHTML = '<option value="">無分盒 (直接查詢)</option>';
+    
+    let options = [];
+    if (type === "活動牌") options = ["A", "B"];
+    else if (type === "其他卡面徽章") options = ["A", "B", "特典"];
+    else if (type !== "卡面厚磚") options = ["A", "B", "C"];
+
+    options.forEach(optVal => {
+        let opt = document.createElement('option');
+        opt.value = optVal; opt.innerHTML = `${optVal} 盒`;
+        boxSelect.appendChild(opt);
+    });
+}
+
+function generateQuery() {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
+    const flower = document.getElementById('flowerType').value;
+    const box = document.getElementById('boxType').value;
+
+    // 組合全名：角色-類型-彈數(-花前後)(-分盒)
+    let parts = [char, type, series];
+    if (type === '色紙' && flower) parts.push(flower);
+    if (box) parts.push(box);
+    
+    let fullName = parts.join('-');
+    document.getElementById('outputName').innerText = fullName;
+    
+    const prices = marketData
+        .filter(item => item.name === fullName && !isNaN(item.price))
+        .map(item => item.price);
+
+    const priceOutput = document.getElementById('priceOutput');
+    const dataCount = document.getElementById('dataCount');
+
+    if (prices.length > 0) {
+        const modeMap = {}; let maxCount = 0, modePrice = prices[0];
+        prices.forEach(p => {
+            modeMap[p] = (modeMap[p] || 0) + 1;
+            if(modeMap[p] > maxCount) { maxCount = modeMap[p]; modePrice = p; }
+        });
+        priceOutput.innerText = `NT$ ${modePrice}`;
+        dataCount.innerText = `(根據 ${prices.length} 筆回報計算)`;
+    } else {
+        priceOutput.innerText = "NT$ ---";
+        dataCount.innerText = "(目前尚無回報數據)";
+    }
+    document.getElementById('result').style.display = 'block';
 }
 
 async function loadData() {
@@ -165,85 +228,18 @@ async function loadData() {
             const cols = row.split(',');
             return { name: cols[1]?.trim(), price: parseInt(cols[2]?.trim()) };
         });
-        console.log("數據載入成功");
-    } catch (e) {
-        console.error("無法讀取數據:", e);
-    }
-}
-
-function getMode(arr) {
-    if (arr.length === 0) return null;
-    const modeMap = {};
-    let maxCount = 0;
-    let modes = [];
-    arr.forEach(val => {
-        modeMap[val] = (modeMap[val] || 0) + 1;
-        if (modeMap[val] > maxCount) {
-            maxCount = modeMap[val];
-            modes = [val];
-        } else if (modeMap[val] === maxCount) {
-            modes.push(val);
-        }
-    });
-    return modes[0];
-}
-
-function generateQuery() {
-    const char = document.getElementById('charName').value;
-    const type = document.getElementById('itemType').value;
-    const series = document.getElementById('seriesSelect').value;
-    const box = document.getElementById('boxType').value;
-    
-    if (!char || !type || !series) {
-        alert("請完整選擇角色、類型與彈數");
-        return;
-    }
-
-    let fullName = `${char}-${type}-${series}`;
-    if(box) {
-        fullName += `-${box}`;
-    }
-    
-    document.getElementById('outputName').innerText = fullName;
-    
-    const prices = marketData
-        .filter(item => item.name === fullName && !isNaN(item.price))
-        .map(item => item.price);
-
-    const priceOutput = document.getElementById('priceOutput');
-    const dataCount = document.getElementById('dataCount');
-
-    if (prices.length > 0) {
-        const modePrice = getMode(prices);
-        priceOutput.innerText = `NT$ ${modePrice}`;
-        dataCount.innerText = `(根據 ${prices.length} 筆回報計算)`;
-    } else {
-        priceOutput.innerText = "NT$ ---";
-        dataCount.innerText = "(目前尚無回報數據)";
-    }
-    
-    document.getElementById('result').style.display = 'block';
+    } catch (e) { console.error("載入失敗", e); }
 }
 
 function setup() {
     const charSelect = document.getElementById('charName');
     const itemSelect = document.getElementById('itemType');
-
-    characters.forEach(name => {
-        let opt = document.createElement('option');
-        opt.value = name; opt.innerHTML = name;
-        charSelect.appendChild(opt);
-    });
-    itemTypes.forEach(type => {
-        let opt = document.createElement('option');
-        opt.value = type; opt.innerHTML = type;
-        itemSelect.appendChild(opt);
-    });
+    characters.forEach(n => { let o = document.createElement('option'); o.value = n; o.innerHTML = n; charSelect.appendChild(o); });
+    itemTypes.forEach(t => { let o = document.createElement('option'); o.value = t; o.innerHTML = t; itemSelect.appendChild(o); });
 }
 
 setup();
 loadData();
 </script>
-
 </body>
 </html>
