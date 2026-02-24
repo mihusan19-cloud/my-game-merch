@@ -34,7 +34,8 @@
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
 
-        .version-tag { position: fixed; bottom: 10px; right: 15px; font-size: 12px; color: #ccc; user-select: none; }
+        /* 版本標記移動至左下角 */
+        .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
 
         /* 小客服懸浮球樣式 */
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
@@ -122,7 +123,7 @@
             1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
             2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
             3. 若發現異常數據，歡迎透過表單回報修正。<br>
-            4. 感謝プロセカ週邊圖鑑授權使用，以及原汁原味芒果協助整理資料。<br>
+            4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
             5. 再販商品請斟酌參考
         </p>
     </div>
@@ -151,7 +152,6 @@
 <div class="version-tag">Beta v1.2.3</div>
 
 <script>
-// 小客服開關功能
 function toggleChat() {
     const modal = document.getElementById('chatModal');
     modal.style.display = (modal.style.display === 'block') ? 'none' : 'block';
