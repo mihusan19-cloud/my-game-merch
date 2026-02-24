@@ -27,6 +27,9 @@
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
         .report-link:hover { background-color: #3498db; color: white; }
         
+        .helper-link { display: block; text-align: center; margin-top: 20px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link:hover { text-decoration: underline; }
+
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
@@ -76,6 +79,10 @@
 
     <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
 
+    <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
+        🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
+    </a>
+
     <div id="result">
         <strong>查詢商品：</strong><br>
         <span id="outputName" style="font-weight: bold; color: #2c3e50;"></span>
@@ -116,8 +123,8 @@ function updateFlow(step) {
     } 
     else if (step === 'type') {
         hideFrom(['field-series', 'field-flower', 'field-box', 'submitBtn']);
-        if (document.getElementById('itemType').value) {
-            updateSeriesOptions(document.getElementById('itemType').value);
+        if (type) {
+            updateSeriesOptions(type);
             document.getElementById('field-series').style.display = 'block';
         }
     } 
@@ -125,7 +132,8 @@ function updateFlow(step) {
         hideFrom(['field-flower', 'field-box', 'submitBtn']);
         if (type === '色紙') {
             document.getElementById('field-flower').style.display = 'block';
-        } else if (type === '卡面厚磚') {
+        } else if (type === '卡面厚磚' || type === '活動牌') {
+            // 厚磚與活動牌無分盒，直接顯示查詢按鈕
             document.getElementById('submitBtn').style.display = 'block';
         } else {
             updateBoxOptions(type);
@@ -133,8 +141,9 @@ function updateFlow(step) {
         }
     }
     else if (step === 'flower') {
-        updateBoxOptions(type);
-        document.getElementById('field-box').style.display = 'block';
+        hideFrom(['field-box', 'submitBtn']);
+        // 色紙無分盒，選完花前後直接顯示按鈕
+        document.getElementById('submitBtn').style.display = 'block';
     }
     else if (step === 'box') {
         document.getElementById('submitBtn').style.display = 'block';
@@ -166,9 +175,10 @@ function updateBoxOptions(type) {
     const boxSelect = document.getElementById('boxType');
     boxSelect.innerHTML = '<option value="">無分盒 (直接查詢)</option>';
     let opts = [];
-    if (type === "活動牌") opts = ["A", "B"];
-    else if (type === "其他卡面徽章") opts = ["A", "B", "特典"];
-    else if (type !== "卡面厚磚") opts = ["A", "B", "C"];
+    // 根據需求，色紙與活動牌已移除分盒，厚磚也移除
+    if (type === "其他卡面徽章") opts = ["A", "B", "特典"];
+    else if (type !== "卡面厚磚" && type !== "活動牌" && type !== "色紙") opts = ["A", "B", "C"];
+    
     opts.forEach(v => {
         let o = document.createElement('option');
         o.value = v; o.innerHTML = `${v} 盒`;
