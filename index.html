@@ -58,7 +58,7 @@
     </div>
 
     <div class="field" id="field-series">
-        <label id="seriesLabel">3. 第幾彈</label>
+        <label id="seriesLabel">3. 第幾彈 (例如: vol.1)</label>
         <select id="seriesSelect" onchange="updateFlow('series')">
             <option value="">請選擇彈數...</option>
         </select>
@@ -105,7 +105,7 @@
             2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
             3. 若發現異常數據，歡迎透過表單回報修正。<br>
             4. 感謝プロセカ週邊圖鑑授權使用<br>
-            5. 再販商品請爭卓參考
+            5. 再販商品請斟酌參考
         </p>
     </div>
 </div>
@@ -167,7 +167,7 @@ function updateSeriesOptions(type) {
     else if (type === "其他卡面徽章") max = 10;
     else if (type === "活動牌") max = 18;
 
-    document.getElementById('seriesLabel').innerText = `3. 第幾彈 (範圍 vol.1~vol.${max})`;
+    document.getElementById('seriesLabel').innerText = `3. 第幾彈 / 例如: vol.1 (範圍 vol.1~vol.${max})`;
     for (let i = 1; i <= max; i++) {
         let opt = document.createElement('option');
         opt.value = `vol.${i}`; opt.innerHTML = `vol.${i}`;
