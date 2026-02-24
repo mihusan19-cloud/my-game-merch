@@ -12,20 +12,33 @@
         #field-char { display: block; } 
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        
         button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button#submitBtn:hover { background-color: #2980b9; }
+        
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
+        
         .copy-btn { padding: 4px 8px; background-color: #95a5a6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 10px; }
+        .copy-btn:hover { background-color: #7f8c8d; }
+
+        .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
+        .report-link:hover { background-color: #3498db; color: white; }
+        
+        .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link:hover { text-decoration: underline; }
+
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
         
-        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; }
-        .chat-widget img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; }
-        .chat-modal-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
-        .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-top: 8px; font-weight: bold; }
+        /* 小助手 */
+        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
+        .chat-widget:hover { transform: scale(1.1); }
+        .chat-widget img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; }
+        .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; box-sizing: border-box; }
+        .chat-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-bottom: 8px; font-weight: bold; border-left: 3px solid #3498db; padding-left: 8px; }
     </style>
 </head>
 <body>
@@ -79,16 +92,28 @@
 
     <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
 
+    <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
+        🔍 前往「PJSK 周邊圖鑑」查詢名稱
+    </a>
+
     <div id="result">
         <strong>查詢商品：</strong><br>
         <span id="outputName" style="font-weight: bold; color: #2c3e50;"></span>
         <button class="copy-btn" onclick="copyName()">複製名稱回報</button>
         <div id="priceOutput" class="price-tag">NT$ ---</div>
-        <div id="dataCount" style="font-size: 0.8em; color: #666;"></div>
+        <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
+        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
+            💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾，再販商品不適用。
+        </div>
+        <a href="https://forms.gle/B1sVgEYxoWWRusv87" target="_blank" class="report-link">➕ 我要回報成交價</a>
     </div>
 
     <div class="info-footer">
+        <h3>📌 使用小提醒</h3>
         <p>
+            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
+            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
+            3. 若發現異常數據，歡迎透過表單回報修正。<br>
             4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
             5. 再販商品請斟酌參考
         </p>
@@ -97,12 +122,12 @@
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
-    <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer">×</span></div>
-    <div class="chat-modal-content">
+    <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
+    <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
         感謝大家協助回報價格。<br><br>
         由於目前是測試階段，只會有最基本的使用，部分內容會在之後新增及優化。<br><br>
         目前以「第幾彈」為主，避免中文稱呼多樣導致數據龐大。
-        <div class="chat-modal-links">
+        <div class="chat-modal-links" style="margin-top:15px;">
             <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
             <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
         </div>
@@ -134,12 +159,7 @@ function updateFlow(step) {
         if (char) {
             const typeSelect = document.getElementById('itemType');
             typeSelect.innerHTML = '<option value="">請選擇類型...</option>';
-            let list = [];
-            if (groups.includes(char)) {
-                list = ["2024感謝祭", "2025感謝祭", "劇場版"];
-            } else {
-                list = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "2024感謝祭", "2025感謝祭", "劇場版"];
-            }
+            let list = groups.includes(char) ? ["2024感謝祭", "2025感謝祭", "劇場版"] : ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "2024感謝祭", "2025感謝祭", "劇場版"];
             list.forEach(t => { let o = document.createElement('option'); o.value = t; o.text = t; typeSelect.appendChild(o); });
             document.getElementById('field-type').style.display = 'block';
         }
@@ -147,44 +167,22 @@ function updateFlow(step) {
     else if (step === 'type') {
         hide(['field-series', 'field-miku-type', 'field-flower', 'field-box', 'submitBtn']);
         if (type === "劇場版") {
-            if (char === "初音未來") {
-                document.getElementById('field-miku-type').style.display = 'block';
-            } else if (groups.includes(char)) {
-                updateBoxOptions("劇場版團體");
-                document.getElementById('field-box').style.display = 'block';
-            } else {
-                updateFlowerOptions("劇場版一般");
-                document.getElementById('field-flower').style.display = 'block';
-            }
-        } else if (type === "2024感謝祭") {
-            updateFlowerOptions("2024感謝祭");
-            document.getElementById('field-flower').style.display = 'block';
-        } else if (type === "2025感謝祭") {
-            updateFlowerOptions("2025感謝祭");
-            document.getElementById('field-flower').style.display = 'block';
-        } else if (groups.includes(char)) {
-            document.getElementById('submitBtn').style.display = 'block';
-        } else {
-            updateSeriesOptions(type);
-            document.getElementById('field-series').style.display = 'block';
-        }
+            if (char === "初音未來") document.getElementById('field-miku-type').style.display = 'block';
+            else if (groups.includes(char)) { updateBoxOptions("劇場版團體"); document.getElementById('field-box').style.display = 'block'; }
+            else { updateFlowerOptions("劇場版一般"); document.getElementById('field-flower').style.display = 'block'; }
+        } else if (type === "2024感謝祭") { updateFlowerOptions("2024感謝祭"); document.getElementById('field-flower').style.display = 'block'; }
+        else if (type === "2025感謝祭") { updateFlowerOptions("2025感謝祭"); document.getElementById('field-flower').style.display = 'block'; }
+        else if (groups.includes(char)) { document.getElementById('submitBtn').style.display = 'block'; }
+        else { updateSeriesOptions(type); document.getElementById('field-series').style.display = 'block'; }
     }
     else if (step === 'miku') {
         hide(['field-flower', 'field-box', 'submitBtn']);
-        if (mikuV) {
-            updateFlowerOptions(mikuV === "好蔥" ? "劇場版好蔥" : "劇場版壞蔥");
-            document.getElementById('field-flower').style.display = 'block';
-        }
+        if (mikuV) { updateFlowerOptions(mikuV === "好蔥" ? "劇場版好蔥" : "劇場版壞蔥"); document.getElementById('field-flower').style.display = 'block'; }
     }
     else if (step === 'series') {
         hide(['field-flower', 'field-box', 'submitBtn']);
-        if (type === '色紙') {
-            updateFlowerOptions("色紙");
-            document.getElementById('field-flower').style.display = 'block';
-        } else {
-            updateBoxOptions(type);
-            document.getElementById('field-box').style.display = 'block';
-        }
+        if (type === '色紙') { updateFlowerOptions("色紙"); document.getElementById('field-flower').style.display = 'block'; }
+        else { updateBoxOptions(type); document.getElementById('field-box').style.display = 'block'; }
     }
     else if (step === 'flower') {
         document.getElementById('submitBtn').style.display = (document.getElementById('flowerType').value) ? 'block' : 'none';
@@ -199,8 +197,7 @@ function updateSeriesOptions(type) {
     s.innerHTML = '<option value="">請選擇彈數...</option>';
     let max = 66;
     if (type.includes("ePick") || type === "徽章") {
-        const births = ["2022生日系列", "2023生日系列", "2024生日系列", "2023創作者祭", "2024創作者祭(超會議)", "2025創作者祭(超會議)"];
-        births.forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
+        ["2022生日系列", "2023生日系列", "2024生日系列", "2023創作者祭", "2024創作者祭(超會議)", "2025創作者祭(超會議)"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
     }
     if (type.includes("ePick")) max = 26;
     else if (type === "卡面厚磚") max = 72;
@@ -219,7 +216,6 @@ function updateFlowerOptions(mode) {
     else if (mode === "2025感謝祭") opts = ["普卡", "燙金", "鑽石磚"];
     else if (mode === "劇場版一般" || mode === "劇場版好蔥") opts = ["徽章", "入場特典色紙"];
     else if (mode === "劇場版壞蔥") opts = ["ePick普卡", "ePick簽卡", "ePick特典", "徽章", "入場特典色紙", "劇場版羈絆牌(白蔥和壞蔥)"];
-    
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; f.appendChild(o); });
 }
 
@@ -231,8 +227,12 @@ function updateBoxOptions(type) {
     else if (type === "其他卡面徽章") opts = ["A", "B", "特典A盒", "特典B盒"];
     else if (type === "徽章" || type.includes("ePick")) opts = ["A", "B", "C", "無分盒"];
     else if (type === "劇場版團體") opts = ["特典"];
-
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; b.appendChild(o); });
+}
+
+function copyName() {
+    navigator.clipboard.writeText(document.getElementById('outputName').innerText);
+    alert("已複製名稱！");
 }
 
 function generateQuery() {
@@ -264,11 +264,6 @@ function generateQuery() {
         pOut.innerText = "NT$ ---"; dOut.innerText = "(目前尚無回報數據)";
     }
     document.getElementById('result').style.display = 'block';
-}
-
-function copyName() {
-    navigator.clipboard.writeText(document.getElementById('outputName').innerText);
-    alert("已複製名稱！");
 }
 
 async function loadData() {
