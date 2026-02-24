@@ -21,7 +21,6 @@
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
         
-        /* 小助手樣式 */
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; }
         .chat-widget img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; }
@@ -110,7 +109,7 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.3.0</div>
+<div class="version-tag">Beta v1.3.1</div>
 
 <script>
 function toggleChat() {
@@ -139,7 +138,7 @@ function updateFlow(step) {
             if (groups.includes(char)) {
                 list = ["2024感謝祭", "2025感謝祭", "劇場版"];
             } else {
-                list = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "2024感謝祭小卡", "2025感謝祭小卡", "劇場版"];
+                list = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "2024感謝祭", "2025感謝祭", "劇場版"];
             }
             list.forEach(t => { let o = document.createElement('option'); o.value = t; o.text = t; typeSelect.appendChild(o); });
             document.getElementById('field-type').style.display = 'block';
@@ -157,8 +156,11 @@ function updateFlow(step) {
                 updateFlowerOptions("劇場版一般");
                 document.getElementById('field-flower').style.display = 'block';
             }
-        } else if (type.includes("感謝祭小卡")) {
-            updateFlowerOptions("小卡");
+        } else if (type === "2024感謝祭") {
+            updateFlowerOptions("2024感謝祭");
+            document.getElementById('field-flower').style.display = 'block';
+        } else if (type === "2025感謝祭") {
+            updateFlowerOptions("2025感謝祭");
             document.getElementById('field-flower').style.display = 'block';
         } else if (groups.includes(char)) {
             document.getElementById('submitBtn').style.display = 'block';
@@ -179,9 +181,6 @@ function updateFlow(step) {
         if (type === '色紙') {
             updateFlowerOptions("色紙");
             document.getElementById('field-flower').style.display = 'block';
-        } else if (type === '卡面厚磚' || type === '活動牌') {
-            updateBoxOptions(type);
-            document.getElementById('field-box').style.display = 'block';
         } else {
             updateBoxOptions(type);
             document.getElementById('field-box').style.display = 'block';
@@ -189,9 +188,6 @@ function updateFlow(step) {
     }
     else if (step === 'flower') {
         document.getElementById('submitBtn').style.display = (document.getElementById('flowerType').value) ? 'block' : 'none';
-        if (type === "劇場版" || type.includes("感謝祭小卡")) {
-            document.getElementById('submitBtn').style.display = 'block';
-        }
     }
     else if (step === 'box') {
         document.getElementById('submitBtn').style.display = (document.getElementById('boxType').value) ? 'block' : 'none';
@@ -219,7 +215,8 @@ function updateFlowerOptions(mode) {
     f.innerHTML = '<option value="">請選擇...</option>';
     let opts = [];
     if (mode === "色紙") opts = ["特訓前", "特訓後"];
-    else if (mode === "小卡") opts = ["普卡", "燙金"];
+    else if (mode === "2024感謝祭") opts = ["普卡", "燙金", "心磚"];
+    else if (mode === "2025感謝祭") opts = ["普卡", "燙金", "鑽石磚"];
     else if (mode === "劇場版一般" || mode === "劇場版好蔥") opts = ["徽章", "入場特典色紙"];
     else if (mode === "劇場版壞蔥") opts = ["ePick普卡", "ePick簽卡", "ePick特典", "徽章", "入場特典色紙", "劇場版羈絆牌(白蔥和壞蔥)"];
     
