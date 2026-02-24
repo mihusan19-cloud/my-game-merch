@@ -8,17 +8,24 @@
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
-        .field { margin-bottom: 20px; }
+        
+        .field { margin-bottom: 20px; display: none; } /* 初始隱藏所有欄位 */
+        #field-char { display: block; } /* 僅顯示第一項 */
+        
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
-        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        
+        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button:hover { background-color: #2980b9; }
+        
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
         .report-link:hover { background-color: #3498db; color: white; }
+        
         .helper-link { display: block; text-align: center; margin-top: 20px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
         .helper-link:hover { text-decoration: underline; }
+        
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
@@ -32,32 +39,38 @@
 <div class="container">
     <h2>PJSK 社團行情查詢</h2>
     
-    <div class="field">
+    <div class="field" id="field-char">
         <label>1. 選擇角色</label>
-        <select id="charName"></select>
+        <select id="charName" onchange="updateFlow('char')">
+            <option value="">請選擇角色...</option>
+        </select>
     </div>
 
-    <div class="field">
+    <div class="field" id="field-type">
         <label>2. 周邊類型</label>
-        <select id="itemType"></select>
+        <select id="itemType" onchange="updateFlow('type')">
+            <option value="">請選擇類型...</option>
+        </select>
     </div>
 
-    <div class="field">
-        <label>3. 第幾彈 </label>
-        <select id="seriesSelect"></select>
+    <div class="field" id="field-series">
+        <label id="seriesLabel">3. 第幾彈</label>
+        <select id="seriesSelect" onchange="updateFlow('series')">
+            <option value="">請選擇彈數...</option>
+        </select>
     </div>
 
-    <div class="field">
+    <div class="field" id="field-box">
         <label>4. 分盒類型</label>
-        <select id="boxType">
-            <option value="">無分盒</option>
+        <select id="boxType" onchange="updateFlow('box')">
+            <option value="">無分盒 (直接查詢)</option>
             <option value="A">A 盒</option>
             <option value="B">B 盒</option>
             <option value="C">C 盒</option>
         </select>
     </div>
 
-    <button onclick="generateQuery()">查詢社團行情</button>
+    <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
 
     <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">
         🔍 不確定名稱？前往「PJSK 周邊圖鑑」查詢
@@ -96,14 +109,52 @@
 const characters = ["初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
 const itemTypes = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "色紙", "拍立得", "徽章", "壓克力立牌", "吊飾", "坐姿娃娃"];
 
-const seriesOptions = [];
-for (let i = 1; i <= 66; i++) {
-    seriesOptions.push(`vol.${i}`);
-}
-
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?output=csv";
 
 let marketData = [];
+
+// 控制下拉選單流程
+function updateFlow(step) {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
+
+    if (step === 'char') {
+        if (char) {
+            document.getElementById('field-type').style.display = 'block';
+        }
+    } 
+    else if (step === 'type') {
+        if (type) {
+            updateSeriesOptions(type);
+            document.getElementById('field-series').style.display = 'block';
+        }
+    } 
+    else if (step === 'series') {
+        if (series) {
+            document.getElementById('field-box').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'block'; // 彈數選完也可直接按查詢
+        }
+    }
+}
+
+// 動態更新彈數範圍
+function updateSeriesOptions(type) {
+    const seriesSelect = document.getElementById('seriesSelect');
+    const label = document.getElementById('seriesLabel');
+    seriesSelect.innerHTML = '<option value="">請選擇彈數...</option>';
+    
+    // 如果是 ePick 相關限制到 26，其餘 66
+    let maxVol = (type.includes("ePick")) ? 26 : 66;
+    label.innerHTML = `3. 第幾彈 (例如: vol.1，目前提供範圍 vol.1~vol.${maxVol})`;
+
+    for (let i = 1; i <= maxVol; i++) {
+        let opt = document.createElement('option');
+        opt.value = `vol.${i}`;
+        opt.innerHTML = `vol.${i}`;
+        seriesSelect.appendChild(opt);
+    }
+}
 
 async function loadData() {
     try {
@@ -143,6 +194,11 @@ function generateQuery() {
     const series = document.getElementById('seriesSelect').value;
     const box = document.getElementById('boxType').value;
     
+    if (!char || !type || !series) {
+        alert("請完整選擇角色、類型與彈數");
+        return;
+    }
+
     let fullName = `${char}-${type}-${series}`;
     if(box) {
         fullName += `-${box}`;
@@ -172,7 +228,6 @@ function generateQuery() {
 function setup() {
     const charSelect = document.getElementById('charName');
     const itemSelect = document.getElementById('itemType');
-    const seriesSelect = document.getElementById('seriesSelect');
 
     characters.forEach(name => {
         let opt = document.createElement('option');
@@ -183,11 +238,6 @@ function setup() {
         let opt = document.createElement('option');
         opt.value = type; opt.innerHTML = type;
         itemSelect.appendChild(opt);
-    });
-    seriesOptions.forEach(vol => {
-        let opt = document.createElement('option');
-        opt.value = vol; opt.innerHTML = vol;
-        seriesSelect.appendChild(opt);
     });
 }
 
