@@ -34,7 +34,6 @@
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
 
-        /* Beta 版本標記樣式 */
         .version-tag { position: fixed; bottom: 10px; right: 15px; font-size: 12px; color: #ccc; user-select: none; }
     </style>
 </head>
@@ -110,11 +109,11 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.2.0</div>
+<div class="version-tag">Beta v1.2.1</div>
 
 <script>
 const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
-const itemTypes = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "壓克力立牌", "吊飾", "其他卡面徽章", "活動牌", "坐姿娃娃"];
+const itemTypes = ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "坐姿娃娃"];
 
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?output=csv";
 let marketData = [];
@@ -162,8 +161,6 @@ function updateSeriesOptions(type) {
     else if (type === "卡面厚磚") max = 72;
     else if (type === "徽章") max = 50;
     else if (type === "色紙") max = 59;
-    else if (type === "壓克力立牌") max = 30;
-    else if (type === "吊飾") max = 21;
     else if (type === "其他卡面徽章") max = 10;
     else if (type === "活動牌") max = 18;
 
@@ -179,12 +176,19 @@ function updateBoxOptions(type) {
     const boxSelect = document.getElementById('boxType');
     boxSelect.innerHTML = '<option value="">無分盒 (直接查詢)</option>';
     let opts = [];
-    if (type === "其他卡面徽章") opts = ["A", "B", "特典"];
-    else if (type !== "卡面厚磚" && type !== "活動牌" && type !== "色紙") opts = ["A", "B", "C"];
+    
+    // 修改處：將「特典」拆分為「特典A盒」與「特典B盒」
+    if (type === "其他卡面徽章") {
+        opts = ["A", "B", "特典A盒", "特典B盒"];
+    } else if (type !== "卡面厚磚" && type !== "活動牌" && type !== "色紙") {
+        opts = ["A", "B", "C"];
+    }
     
     opts.forEach(v => {
         let o = document.createElement('option');
-        o.value = v; o.innerHTML = `${v} 盒`;
+        o.value = v; 
+        // 為了讓顯示一致，如果是 A, B, C 則加上「盒」字，如果是「特典A盒」則直接顯示
+        o.innerHTML = v.length === 1 ? `${v} 盒` : v;
         boxSelect.appendChild(o);
     });
 }
