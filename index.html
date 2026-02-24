@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>世界計畫社團行情比價</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; position: relative; min-height: 100vh; margin: 0; box-sizing: border-box; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 50px; }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
         
         .field { margin-bottom: 20px; display: none; } 
@@ -33,6 +33,9 @@
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
+
+        /* Beta 版本標記樣式 */
+        .version-tag { position: fixed; bottom: 10px; right: 15px; font-size: 12px; color: #ccc; user-select: none; }
     </style>
 </head>
 <body>
@@ -101,10 +104,13 @@
             1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
             2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
             3. 若發現異常數據，歡迎透過表單回報修正。<br>
-            4. 感謝プロセカ週邊圖鑑授權使用
+            4. 感謝プロセカ週邊圖鑑授權使用<br>
+            5. 再販商品請爭卓參考
         </p>
     </div>
 </div>
+
+<div class="version-tag">Beta v1.2.0</div>
 
 <script>
 const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
@@ -133,7 +139,6 @@ function updateFlow(step) {
         if (type === '色紙') {
             document.getElementById('field-flower').style.display = 'block';
         } else if (type === '卡面厚磚' || type === '活動牌') {
-            // 厚磚與活動牌無分盒，直接顯示查詢按鈕
             document.getElementById('submitBtn').style.display = 'block';
         } else {
             updateBoxOptions(type);
@@ -142,7 +147,6 @@ function updateFlow(step) {
     }
     else if (step === 'flower') {
         hideFrom(['field-box', 'submitBtn']);
-        // 色紙無分盒，選完花前後直接顯示按鈕
         document.getElementById('submitBtn').style.display = 'block';
     }
     else if (step === 'box') {
@@ -175,7 +179,6 @@ function updateBoxOptions(type) {
     const boxSelect = document.getElementById('boxType');
     boxSelect.innerHTML = '<option value="">無分盒 (直接查詢)</option>';
     let opts = [];
-    // 根據需求，色紙與活動牌已移除分盒，厚磚也移除
     if (type === "其他卡面徽章") opts = ["A", "B", "特典"];
     else if (type !== "卡面厚磚" && type !== "活動牌" && type !== "色紙") opts = ["A", "B", "C"];
     
