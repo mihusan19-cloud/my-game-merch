@@ -12,29 +12,18 @@
         #field-char { display: block; } 
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
-        
         button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button#submitBtn:hover { background-color: #2980b9; }
-        
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
-        
         .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
-        .helper-link:hover { text-decoration: underline; }
-
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
-        
-        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
-        .chat-widget:hover { transform: scale(1.1); }
-        .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
-        
-        .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; box-sizing: border-box; }
-        .chat-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
-        .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-bottom: 8px; font-weight: bold; border-left: 3px solid #3498db; padding-left: 8px; }
+        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; }
+        .chat-widget img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
+        .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; }
     </style>
 </head>
 <body>
@@ -95,52 +84,33 @@
         <span id="outputName" style="font-weight: bold; color: #2c3e50;"></span>
         <div id="priceOutput" class="price-tag">NT$ ---</div>
         <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
-        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
-            💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
-        </div>
         <a href="https://forms.gle/mMm19jakU5ts8rk78" target="_blank" class="report-link">➕ 我要回報成交價</a>
     </div>
 
     <div class="info-footer">
-        <h3>📌 使用小提醒</h3>
-        <p>
-            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
-            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
-            3. 若發現異常數據，歡迎透過表單回報修正。<br>
-            4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
-            5. 再販商品請斟酌參考
-        </p>
+        <p>1. 查詢時請確保選單選項正確。<br>2. 價格僅供參考。<br>3. 感謝プロセカ週邊圖鑑授權及資料整理。</p>
     </div>
 </div>
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
-    <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
-    <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
-        感謝大家協助回報價格。<br><br>
-        由於目前是測試階段，只會有最基本的使用，部分內容會在之後新增及優化。<br><br>
-        目前以「第幾彈」為主，避免中文稱呼多樣導致數據龐大。
-        <div class="chat-modal-links" style="margin-top:15px;">
-            <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
-            <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
-        </div>
-    </div>
+    <div style="display:flex; justify-content:space-between;"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer;">&times;</span></div>
+    <div style="font-size:13px;">目前為測試階段，歡迎回報建議或 Bug。</div>
 </div>
 
-<div class="version-tag">Beta v1.4.3</div>
+<div class="version-tag">Beta v1.4.5</div>
 
 <script>
-// 您的新 CSV 連結
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
+
+const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
+const groups = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見"];
+let marketData = [];
 
 function toggleChat() {
     const m = document.getElementById('chatModal');
     m.style.display = (m.style.display === 'block') ? 'none' : 'block';
 }
-
-const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
-const groups = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見"];
-let marketData = [];
 
 function updateFlow(step) {
     const char = document.getElementById('charName').value;
@@ -220,6 +190,22 @@ function updateBoxOptions(type) {
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; b.appendChild(o); });
 }
 
+async function loadData() {
+    try {
+        const res = await fetch(csvUrl);
+        const data = await res.text();
+        const rows = data.split('\n').slice(1);
+        marketData = rows.map(r => {
+            const c = r.split(',');
+            // 名稱在 G 欄 (index 6)，價格在 F 欄 (index 5)
+            return { 
+                name: c[6]?.trim(), 
+                price: parseInt(c[5]?.trim()) 
+            };
+        }).filter(item => item.name && !isNaN(item.price)); 
+    } catch (e) { console.error("載入失敗", e); }
+}
+
 function generateQuery() {
     const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
@@ -235,12 +221,11 @@ function generateQuery() {
     if (box && box !== "無分盒") parts.push(box);
     
     let fullName = parts.filter(p => p && p.trim() !== "").join('-');
-    
     document.getElementById('outputName').innerText = fullName;
     const pOut = document.getElementById('priceOutput');
     const dOut = document.getElementById('dataCount');
 
-    const prices = marketData.filter(i => i.name === fullName && !isNaN(i.price)).map(i => i.price);
+    const prices = marketData.filter(i => i.name === fullName).map(i => i.price);
     
     if (prices.length > 0) {
         const modeMap = {}; let max = 0, mode = prices[0];
@@ -252,19 +237,6 @@ function generateQuery() {
         dOut.innerText = "(目前尚無回報數據)";
     }
     document.getElementById('result').style.display = 'block';
-}
-
-async function loadData() {
-    try {
-        const res = await fetch(csvUrl);
-        const data = await res.text();
-        const rows = data.split('\n').slice(1);
-        marketData = rows.map(r => {
-            const c = r.split(',');
-            // 關鍵對應：c[6] 是試算表 G 欄(名稱)，c[2] 是 C 欄(價格)
-            return { name: c[6]?.trim(), price: parseInt(c[2]?.trim()) };
-        }).filter(item => item.name); 
-    } catch (e) { console.error("載入失敗", e); }
 }
 
 const charSelect = document.getElementById('charName');
