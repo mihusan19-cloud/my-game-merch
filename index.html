@@ -28,7 +28,6 @@
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
         
-        /* 小助手樣式 */
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
         .chat-widget:hover { transform: scale(1.1); }
         .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
@@ -128,9 +127,10 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.4.2</div>
+<div class="version-tag">Beta v1.4.3</div>
 
 <script>
+// 您的新 CSV 連結
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
 
 function toggleChat() {
@@ -261,6 +261,7 @@ async function loadData() {
         const rows = data.split('\n').slice(1);
         marketData = rows.map(r => {
             const c = r.split(',');
+            // 關鍵對應：c[6] 是試算表 G 欄(名稱)，c[2] 是 C 欄(價格)
             return { name: c[6]?.trim(), price: parseInt(c[2]?.trim()) };
         }).filter(item => item.name); 
     } catch (e) { console.error("載入失敗", e); }
