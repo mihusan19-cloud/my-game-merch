@@ -107,7 +107,7 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.3.6</div>
+<div class="version-tag">Beta v1.3.7</div>
 
 <script>
 function toggleChat() {
@@ -176,12 +176,14 @@ function updateFlowerOptions(mode) {
         else { opts = (mode === "2024感謝祭") ? ["普卡", "燙金", "心磚"] : ["普卡", "燙金", "鑽石磚"]; }
     } 
     else if (mode === "色紙") opts = ["特訓前", "特訓後"];
-    // 劇場版一般角色、好蔥、壞蔥 通通加入 ePick 選項
-    else if (mode === "劇場版一般" || mode === "劇場版好蔥" || mode === "劇場版壞蔥") {
+    // 劇場版邏輯判斷
+    else if (mode === "劇場版一般" || mode === "劇場版壞蔥") {
         opts = ["ePick普卡", "ePick簽卡", "徽章", "入場特典色紙"];
         if (mode === "劇場版壞蔥") {
             opts.push("ePick特典", "劇場版羈絆牌(白蔥和壞蔥)");
         }
+    } else if (mode === "劇場版好蔥") {
+        opts = ["徽章", "入場特典色紙"]; // 好蔥不顯示 ePick
     }
     
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; f.appendChild(o); });
