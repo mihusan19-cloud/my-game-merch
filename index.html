@@ -24,13 +24,13 @@
         .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
         .helper-link:hover { text-decoration: underline; }
 
-        /* 底部資訊樣式 */
+        /* 底部資訊樣式恢復 */
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
         
-        /* 小助手樣式 */
+        /* 小助手樣式恢復 */
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
         .chat-widget:hover { transform: scale(1.1); }
         .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
@@ -100,7 +100,7 @@
         <div id="priceOutput" class="price-tag">NT$ ---</div>
         <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
         <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
-            💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」。
+            💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
         </div>
         <a href="https://forms.gle/B1sVgEYxoWWRusv87" target="_blank" class="report-link">➕ 我要回報成交價</a>
     </div>
@@ -108,9 +108,11 @@
     <div class="info-footer">
         <h3>📌 使用小提醒</h3>
         <p>
-            1. 查詢時請確保選單選項正確。<br>
-            2. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
-            3. 再販商品請斟酌參考
+            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
+            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
+            3. 若發現異常數據，歡迎透過表單回報修正。<br>
+            4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
+            5. 再販商品請斟酌參考
         </p>
     </div>
 </div>
@@ -120,7 +122,8 @@
     <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
     <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
         感謝大家協助回報價格。<br><br>
-        目前以「第幾彈」為主，避免名稱混亂導致數據龐大。
+        由於目前是測試階段，只會有最基本的使用，部分內容會在之後新增及優化。<br><br>
+        目前以「第幾彈」為主，避免中文稱呼多樣導致數據龐大。
         <div class="chat-modal-links" style="margin-top:15px;">
             <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
             <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
@@ -128,10 +131,10 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.3.8</div>
+<div class="version-tag">Beta v1.3.9</div>
 
 <script>
-// 設定您的 CSV 網址
+// CSV 連結對接
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?gid=521627445&single=true&output=csv";
 
 function toggleChat() {
@@ -246,7 +249,6 @@ function generateQuery() {
     const pOut = document.getElementById('priceOutput');
     const dOut = document.getElementById('dataCount');
 
-    // 關鍵比對邏輯：i.name 是 CSV 中第 7 欄（索引6）的組合名
     const prices = marketData.filter(i => i.name === fullName && !isNaN(i.price)).map(i => i.price);
     if (prices.length > 0) {
         const modeMap = {}; let max = 0, mode = prices[0];
@@ -266,10 +268,8 @@ async function loadData() {
         const rows = data.split('\n').slice(1);
         marketData = rows.map(r => {
             const c = r.split(',');
-            // CSV 格式：G欄是名稱(索引6), C欄是價格(索引2)
             return { name: c[6]?.trim(), price: parseInt(c[2]?.trim()) };
         }).filter(item => item.name); 
-        console.log("數據載入成功");
     } catch (e) { console.error("載入失敗", e); }
 }
 
