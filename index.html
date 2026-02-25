@@ -24,13 +24,11 @@
         .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
         .helper-link:hover { text-decoration: underline; }
 
-        /* 底部資訊樣式恢復 */
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
         
-        /* 小助手樣式恢復 */
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
         .chat-widget:hover { transform: scale(1.1); }
         .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
@@ -102,7 +100,7 @@
         <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
             💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
         </div>
-        <a href="https://forms.gle/B1sVgEYxoWWRusv87" target="_blank" class="report-link">➕ 我要回報成交價</a>
+        <a href="https://forms.gle/mMm19jakU5ts8rk78" target="_blank" class="report-link">➕ 我要回報成交價</a>
     </div>
 
     <div class="info-footer">
@@ -131,11 +129,11 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.3.9</div>
+<div class="version-tag">Beta v1.4.1</div>
 
 <script>
-// CSV 連結對接
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvXxis5JLRyEbv0lSyEzbf03bG9uutyGOKmxLnno3x0ys-PSidWLUQlWpwEPPynURj0QPtxtSjRZrz/pub?gid=521627445&single=true&output=csv";
+// 替換為新的試算表 CSV 連結
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
 
 function toggleChat() {
     const m = document.getElementById('chatModal');
@@ -149,7 +147,6 @@ let marketData = [];
 function updateFlow(step) {
     const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
-    const mikuV = document.getElementById('mikuVersion').value;
     const hide = (ids) => ids.forEach(id => document.getElementById(id).style.display = 'none');
 
     if (step === 'char') {
@@ -175,7 +172,7 @@ function updateFlow(step) {
     }
     else if (step === 'miku') {
         hide(['field-flower', 'field-box', 'submitBtn']);
-        if (mikuV) { updateFlowerOptions(mikuV === "好蔥" ? "劇場版好蔥" : "劇場版壞蔥"); document.getElementById('field-flower').style.display = 'block'; }
+        if (document.getElementById('mikuVersion').value) { updateFlowerOptions(document.getElementById('mikuVersion').value === "好蔥" ? "劇場版好蔥" : "劇場版壞蔥"); document.getElementById('field-flower').style.display = 'block'; }
     }
     else if (step === 'series') {
         hide(['field-flower', 'field-box', 'submitBtn']);
@@ -238,25 +235,33 @@ function generateQuery() {
     const box = document.getElementById('boxType').value;
     const mikuV = document.getElementById('mikuVersion').value;
 
+    // 關鍵修正：嚴格匹配試算表 G 欄 TEXTJOIN("-", TRUE, ...) 邏輯
     let parts = [char, type];
     if (mikuV) parts.push(mikuV);
     if (series) parts.push(series);
     if (flower) parts.push(flower);
     if (box && box !== "無分盒") parts.push(box);
     
-    let fullName = parts.map(p => p.trim()).join('-');
+    // 過濾空值並用橫線連接
+    let fullName = parts.filter(p => p && p.trim() !== "").join('-');
+    
     document.getElementById('outputName').innerText = fullName;
     const pOut = document.getElementById('priceOutput');
     const dOut = document.getElementById('dataCount');
 
+    // 新試算表中 G 欄索引通常是 6 (A=0, B=1, C=2, D=3, E=4, F=5, G=6)
+    // 價格欄位在您新試算表中是 F 欄 (索引 5) 或是 C 欄 (索引 2)? 
+    // 根據 image_b6b13f.png，價格是 C 欄 (索引 2)，名稱是 G 欄 (索引 6)
     const prices = marketData.filter(i => i.name === fullName && !isNaN(i.price)).map(i => i.price);
+    
     if (prices.length > 0) {
         const modeMap = {}; let max = 0, mode = prices[0];
         prices.forEach(p => { modeMap[p] = (modeMap[p] || 0) + 1; if(modeMap[p] > max) { max = modeMap[p]; mode = p; } });
         pOut.innerText = `NT$ ${mode}`;
         dOut.innerText = `(根據 ${prices.length} 筆回報計算)`;
     } else {
-        pOut.innerText = "NT$ ---"; dOut.innerText = "(目前尚無回報數據)";
+        pOut.innerText = "NT$ ---"; 
+        dOut.innerText = "(目前尚無回報數據)";
     }
     document.getElementById('result').style.display = 'block';
 }
@@ -268,6 +273,7 @@ async function loadData() {
         const rows = data.split('\n').slice(1);
         marketData = rows.map(r => {
             const c = r.split(',');
+            // 根據您的最新試算表圖片：C欄是價格(索引2)，G欄是名稱(索引6)
             return { name: c[6]?.trim(), price: parseInt(c[2]?.trim()) };
         }).filter(item => item.name); 
     } catch (e) { console.error("載入失敗", e); }
