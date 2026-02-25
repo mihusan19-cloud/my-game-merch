@@ -12,19 +12,29 @@
         #field-char { display: block; } 
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        
         button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button#submitBtn:hover { background-color: #2980b9; }
+        
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .copy-btn { padding: 4px 8px; background-color: #95a5a6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 10px; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
+        
         .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link:hover { text-decoration: underline; }
+
+        /* 底部資訊樣式 */
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
+        
+        /* 小助手樣式 */
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
-        .chat-widget img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; }
+        .chat-widget:hover { transform: scale(1.1); }
+        .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
+        
         .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; box-sizing: border-box; }
         .chat-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
         .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-bottom: 8px; font-weight: bold; border-left: 3px solid #3498db; padding-left: 8px; }
@@ -97,18 +107,23 @@
 
     <div class="info-footer">
         <h3>📌 使用小提醒</h3>
-        <p>1. 查詢時請確保選單選項正確。<br>2. 感謝プロセカ週邊圖鑑授權以及原汁原味芒果協助整理。<br>3. 再販商品請斟酌參考。</p>
+        <p>
+            1. 查詢時請確保選單選項正確。<br>
+            2. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
+            3. 再販商品請斟酌參考
+        </p>
     </div>
 </div>
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
     <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
-    <div class="chat-modal-content" style="font-size:13px; color:#555;">
-        感謝大家協助回報價格。<br>
-        目前以「第幾彈」為主，避免名稱混亂。
+    <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
+        感謝大家協助回報價格。<br><br>
+        目前以「第幾彈」為主，避免名稱混亂導致數據龐大。
         <div class="chat-modal-links" style="margin-top:15px;">
             <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
+            <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
         </div>
     </div>
 </div>
@@ -231,7 +246,7 @@ function generateQuery() {
     const pOut = document.getElementById('priceOutput');
     const dOut = document.getElementById('dataCount');
 
-    // 這裡比對 CSV 資料中的名稱
+    // 關鍵比對邏輯：i.name 是 CSV 中第 7 欄（索引6）的組合名
     const prices = marketData.filter(i => i.name === fullName && !isNaN(i.price)).map(i => i.price);
     if (prices.length > 0) {
         const modeMap = {}; let max = 0, mode = prices[0];
@@ -251,10 +266,10 @@ async function loadData() {
         const rows = data.split('\n').slice(1);
         marketData = rows.map(r => {
             const c = r.split(',');
-            // 這裡假設您的 CSV 產出，G 欄(索引6)是系統組合名稱，C 欄(索引2)是價格
+            // CSV 格式：G欄是名稱(索引6), C欄是價格(索引2)
             return { name: c[6]?.trim(), price: parseInt(c[2]?.trim()) };
-        }).filter(item => item.name); // 過濾掉空白列
-        console.log("數據載入成功，共 " + marketData.length + " 筆");
+        }).filter(item => item.name); 
+        console.log("數據載入成功");
     } catch (e) { console.error("載入失敗", e); }
 }
 
