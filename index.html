@@ -12,20 +12,31 @@
         #field-char { display: block; } 
         label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        
         button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button#submitBtn:hover { background-color: #2980b9; }
+        
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
         .copy-btn { padding: 4px 8px; background-color: #95a5a6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 10px; }
         .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
+        
         .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link:hover { text-decoration: underline; }
+
         .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 12px; color: #ccc; user-select: none; }
-        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; }
+        
+        /* 小助手樣式 */
+        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
+        .chat-widget:hover { transform: scale(1.1); }
         .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
+        
         .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; box-sizing: border-box; }
         .chat-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-bottom: 8px; font-weight: bold; border-left: 3px solid #3498db; padding-left: 8px; }
     </style>
 </head>
 <body>
@@ -94,20 +105,32 @@
     </div>
 
     <div class="info-footer">
-        <p>4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>5. 再販商品請斟酌參考</p>
+        <h3>📌 使用小提醒</h3>
+        <p>
+            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
+            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
+            3. 若發現異常數據，歡迎透過表單回報修正。<br>
+            4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
+            5. 再販商品請斟酌參考
+        </p>
     </div>
 </div>
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
     <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
-    <div class="chat-modal-content" style="font-size:13px; color:#555;">
-        感謝大家協助回報價格。目前以「第幾彈」為主，避免中文稱呼多樣導致數據龐大。
-        <div style="margin-top:10px;"><a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a></div>
+    <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
+        感謝大家協助回報價格。<br><br>
+        由於目前是測試階段，只會有最基本的使用，部分內容會在之後新增及優化。<br><br>
+        目前以「第幾彈」為主，避免中文稱呼多樣導致數據龐大。
+        <div class="chat-modal-links" style="margin-top:15px;">
+            <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
+            <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
+        </div>
     </div>
 </div>
 
-<div class="version-tag">Beta v1.3.7</div>
+<div class="version-tag">Beta v1.3.8</div>
 
 <script>
 function toggleChat() {
@@ -176,14 +199,11 @@ function updateFlowerOptions(mode) {
         else { opts = (mode === "2024感謝祭") ? ["普卡", "燙金", "心磚"] : ["普卡", "燙金", "鑽石磚"]; }
     } 
     else if (mode === "色紙") opts = ["特訓前", "特訓後"];
-    // 劇場版邏輯判斷
     else if (mode === "劇場版一般" || mode === "劇場版壞蔥") {
         opts = ["ePick普卡", "ePick簽卡", "徽章", "入場特典色紙"];
-        if (mode === "劇場版壞蔥") {
-            opts.push("ePick特典", "劇場版羈絆牌(白蔥和壞蔥)");
-        }
+        if (mode === "劇場版壞蔥") { opts.push("ePick特典", "劇場版羈絆牌(白蔥和壞蔥)"); }
     } else if (mode === "劇場版好蔥") {
-        opts = ["徽章", "入場特典色紙"]; // 好蔥不顯示 ePick
+        opts = ["徽章", "入場特典色紙"];
     }
     
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; f.appendChild(o); });
