@@ -127,7 +127,7 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.4.8</div>
+<div class="version-tag">Beta v1.4.9</div>
 
 <script>
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
@@ -144,6 +144,7 @@ let marketData = [];
 function updateFlow(step) {
     const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
     const hide = (ids) => ids.forEach(id => document.getElementById(id).style.display = 'none');
 
     if (step === 'char') {
@@ -178,7 +179,15 @@ function updateFlow(step) {
     }
     else if (step === 'series') {
         hide(['field-flower', 'field-box', 'submitBtn']);
-        if (type === '色紙') { updateFlowerOptions("色紙"); document.getElementById('field-flower').style.display = 'block'; }
+        if (type === '色紙') {
+            // 判斷是否為生日系列
+            if (series.includes("生日系列")) {
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                updateFlowerOptions("色紙"); 
+                document.getElementById('field-flower').style.display = 'block';
+            }
+        }
         else if (type === '二星立牌') { document.getElementById('submitBtn').style.display = 'block'; }
         else { updateBoxOptions(type); document.getElementById('field-box').style.display = 'block'; }
     }
@@ -189,11 +198,10 @@ function updateFlow(step) {
 
 function updateFlowerOptions(mode) {
     const f = document.getElementById('flowerType');
-    const char = document.getElementById('charName').value;
     f.innerHTML = '<option value="">請選擇...</option>';
     let opts = [];
     if (mode === "2024感謝祭" || mode === "2025感謝祭") {
-        opts = groups.includes(char) ? ["團體小卡"] : ["普卡", "燙金", (mode === "2024感謝祭" ? "心磚" : "鑽石磚"), "立牌", "徽章"];
+        opts = ["普卡", "燙金", (mode === "2024感謝祭" ? "心磚" : "鑽石磚"), "立牌", "徽章"];
     } 
     else if (mode === "色紙") opts = ["特訓前", "特訓後", "整組"];
     else if (mode === "方型立牌") opts = ["2022年生日系列", "2023年生日系列", "2024年生日系列"];
@@ -213,8 +221,18 @@ function updateSeriesOptions(type) {
     if (type === "二星立牌") {
         max = 30;
     } else {
-        if (type.includes("ePick") || type === "徽章") ["2022生日系列", "2023生日系列", "2024生日系列", "2023創作者祭", "2024創作者祭", "2025創作者祭"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
-        if (type.includes("ePick")) max = 26; else if (type === "卡面厚磚") max = 72; else if (type === "徽章") max = 50; else if (type === "色紙") max = 59; else if (type === "活動牌") max = 18;
+        // 生日系列選單加入色紙或 ePick/徽章
+        const birthdaySeries = ["2022生日系列", "2023生日系列", "2024生日系列"];
+        if (type.includes("ePick") || type === "徽章" || type === "色紙") {
+            birthdaySeries.forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
+            if (type !== "色紙") ["2023創作者祭", "2024創作者祭", "2025創作者祭"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
+        }
+        
+        if (type.includes("ePick")) max = 26; 
+        else if (type === "卡面厚磚") max = 72; 
+        else if (type === "徽章") max = 50; 
+        else if (type === "色紙") max = 59; 
+        else if (type === "活動牌") max = 18;
     }
     for (let i = 1; i <= max; i++) { let o = document.createElement('option'); o.value = `vol.${i}`; o.text = `vol.${i}`; s.appendChild(o); }
 }
@@ -237,7 +255,7 @@ async function loadData() {
         const rows = data.split('\n').slice(1);
         marketData = rows.map(r => {
             const c = r.split(',');
-            return { name: c[6]?.trim(), price: parseInt(c[5]?.trim()) };
+            return { name: c?.trim(), price: parseInt(c?.trim()) };
         }).filter(item => item.name && !isNaN(item.price)); 
     } catch (e) { console.error("載入失敗", e); }
 }
@@ -253,8 +271,8 @@ function generateQuery() {
     let parts = [char, type];
     if (mikuV) parts.push(mikuV);
     if (series) parts.push(series);
-    if (flower) parts.push(flower);
-    if (box && box !== "無分盒") parts.push(box);
+    if (flower && document.getElementById('field-flower').style.display !== 'none') parts.push(flower);
+    if (box && box !== "無分盒" && document.getElementById('field-box').style.display !== 'none') parts.push(box);
     
     let fullName = parts.filter(p => p && p.trim() !== "").join('-');
     document.getElementById('outputName').innerText = fullName;
@@ -264,7 +282,7 @@ function generateQuery() {
     const prices = marketData.filter(i => i.name === fullName).map(i => i.price);
     
     if (prices.length > 0) {
-        const modeMap = {}; let max = 0, mode = prices[0];
+        const modeMap = {}; let max = 0, mode = prices;
         prices.forEach(p => { modeMap[p] = (modeMap[p] || 0) + 1; if(modeMap[p] > max) { max = modeMap[p]; mode = p; } });
         pOut.innerText = `NT$ ${mode}`;
         dOut.innerText = `(根據 ${prices.length} 筆回報計算)`;
