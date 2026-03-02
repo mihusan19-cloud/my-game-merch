@@ -6,7 +6,7 @@
     <title>世界計畫社團行情比價</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; position: relative; min-height: 100vh; margin: 0; box-sizing: border-box; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 50px; }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
         .field { margin-bottom: 20px; display: none; } 
         #field-char { display: block; } 
@@ -27,8 +27,8 @@
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         
-        /* 調整為更低調的 ver 格式 */
-        .version-tag { text-align: center; margin-top: 25px; font-size: 10px; color: #aaa; opacity: 0.6; letter-spacing: 1px; user-select: none; }
+        /* 版本號：移至左下角，保持極簡低調 */
+        .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 10px; color: #aaa; opacity: 0.6; letter-spacing: 1px; user-select: none; z-index: 999; }
         
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
         .chat-widget:hover { transform: scale(1.1); }
@@ -50,12 +50,14 @@
             <option value="">請選擇...</option>
         </select>
     </div>
+
     <div class="field" id="field-type">
         <label>2. 周邊類型</label>
         <select id="itemType" onchange="updateFlow('type')">
             <option value="">請選擇類型...</option>
         </select>
     </div>
+
     <div class="field" id="field-miku-type">
         <label>選擇版本</label>
         <select id="mikuVersion" onchange="updateFlow('miku')">
@@ -64,18 +66,21 @@
             <option value="壞蔥">壞蔥</option>
         </select>
     </div>
+
     <div class="field" id="field-series">
         <label id="seriesLabel">3. 第幾彈 / 例如: vol.1</label>
         <select id="seriesSelect" onchange="updateFlow('series')">
             <option value="">請選擇彈數...</option>
         </select>
     </div>
+
     <div class="field" id="field-flower">
         <label>選擇分類</label>
         <select id="flowerType" onchange="updateFlow('flower')">
             <option value="">請選擇...</option>
         </select>
     </div>
+
     <div class="field" id="field-box">
         <label id="boxLabel">分盒/特典</label>
         <select id="boxType" onchange="updateFlow('box')">
@@ -84,6 +89,7 @@
     </div>
 
     <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
+
     <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">🔍 前往「PJSK 周邊圖鑑」查詢名稱</a>
 
     <div id="result">
@@ -107,9 +113,9 @@
             5. 再販商品請斟酌參考
         </p>
     </div>
-    
-    <div class="version-tag">ver 1.5.0</div>
 </div>
+
+<div class="version-tag">ver 1.5.0</div>
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
@@ -126,7 +132,6 @@
 </div>
 
 <script>
-// JavaScript 部分邏輯完全保持 1.5.0 版本不變
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
 
 function toggleChat() {
