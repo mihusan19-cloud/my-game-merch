@@ -118,8 +118,8 @@
     <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
     <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
         感謝大家協助回報價格。<br><br>
-        由於目前是測試階段，只會有最基本的使用，部分內容會在之後新增及優化。<br><br>
-        目前以「第幾彈」為主，避免中文稱呼多樣導致數據龐大。
+        此網頁才剛製作出來，目前只有基本的使用，部分內容(如直接附上圖片)會在之後新增及優化。<br><br>
+        目前彈數以「第幾彈」為查詢，避免中文稱呼多樣導致數據龐大。
         <div class="chat-modal-links" style="margin-top:15px;">
             <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
             <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
@@ -127,7 +127,7 @@
     </div>
 </div>
 
-<div class="version-tag">Beta v1.4.9</div>
+<div class="version-tag">v1.5.0 正式版</div>
 
 <script>
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
@@ -152,7 +152,7 @@ function updateFlow(step) {
         if (char) {
             const typeSelect = document.getElementById('itemType');
             typeSelect.innerHTML = '<option value="">請選擇類型...</option>';
-            let list = groups.includes(char) ? ["2024感謝祭", "2025感謝祭", "劇場版"] : ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "方型立牌", "二星立牌", "2024感謝祭", "2025感謝祭", "劇場版"];
+            let list = groups.includes(char) ? ["2024感謝祭", "2025感謝祭", "劇場版"] : ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "方型立牌", "二星立牌", "貼紙", "貼紙金簽", "2024感謝祭", "2025感謝祭", "劇場版"];
             list.forEach(t => { let o = document.createElement('option'); o.value = t; o.text = t; typeSelect.appendChild(o); });
             document.getElementById('field-type').style.display = 'block';
         }
@@ -180,7 +180,6 @@ function updateFlow(step) {
     else if (step === 'series') {
         hide(['field-flower', 'field-box', 'submitBtn']);
         if (type === '色紙') {
-            // 判斷是否為生日系列
             if (series.includes("生日系列")) {
                 document.getElementById('submitBtn').style.display = 'block';
             } else {
@@ -220,8 +219,10 @@ function updateSeriesOptions(type) {
     let max = 66;
     if (type === "二星立牌") {
         max = 30;
+    } else if (type === "貼紙" || type === "貼紙金簽") {
+        max = 10;
+        ["2023生日系列", "2024生日系列"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
     } else {
-        // 生日系列選單加入色紙或 ePick/徽章
         const birthdaySeries = ["2022生日系列", "2023生日系列", "2024生日系列"];
         if (type.includes("ePick") || type === "徽章" || type === "色紙") {
             birthdaySeries.forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
@@ -243,7 +244,7 @@ function updateBoxOptions(type) {
     let opts = ["無分盒"];
     if (type === "活動牌") opts = ["A", "B"];
     else if (type === "其他卡面徽章") opts = ["A", "B", "特典A盒", "特典B盒"];
-    else if (type === "徽章" || type.includes("ePick")) opts = ["A", "B", "C", "無分盒"];
+    else if (type === "徽章" || type.includes("ePick") || type === "貼紙" || type === "貼紙金簽") opts = ["A", "B", "C", "無分盒"];
     else if (type === "劇場版團體") opts = ["特典"];
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; b.appendChild(o); });
 }
@@ -255,7 +256,7 @@ async function loadData() {
         const rows = data.split('\n').slice(1);
         marketData = rows.map(r => {
             const c = r.split(',');
-            return { name: c?.trim(), price: parseInt(c?.trim()) };
+            return { name: c[6]?.trim(), price: parseInt(c[5]?.trim()) };
         }).filter(item => item.name && !isNaN(item.price)); 
     } catch (e) { console.error("載入失敗", e); }
 }
@@ -282,7 +283,7 @@ function generateQuery() {
     const prices = marketData.filter(i => i.name === fullName).map(i => i.price);
     
     if (prices.length > 0) {
-        const modeMap = {}; let max = 0, mode = prices;
+        const modeMap = {}; let max = 0, mode = prices[0];
         prices.forEach(p => { modeMap[p] = (modeMap[p] || 0) + 1; if(modeMap[p] > max) { max = modeMap[p]; mode = p; } });
         pOut.innerText = `NT$ ${mode}`;
         dOut.innerText = `(根據 ${prices.length} 筆回報計算)`;
