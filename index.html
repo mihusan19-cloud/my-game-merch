@@ -15,6 +15,10 @@
         
         button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button#submitBtn:hover { background-color: #2980b9; }
+
+        /* Mercari 按鈕樣式 */
+        .btn-mercari { width: 100%; padding: 12px; background-color: #ff0211; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: block; text-align: center; text-decoration: none; }
+        .btn-mercari:hover { background-color: #d1020e; }
         
         #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
         .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
@@ -27,7 +31,6 @@
         .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
         .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
         
-        /* 版本號：移至左下角，保持極簡低調 */
         .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 10px; color: #aaa; opacity: 0.6; letter-spacing: 1px; user-select: none; z-index: 999; }
         
         .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
@@ -97,7 +100,10 @@
         <span id="outputName" style="font-weight: bold; color: #2c3e50;"></span>
         <div id="priceOutput" class="price-tag">NT$ ---</div>
         <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
-        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
+        
+        <button class="btn-mercari" onclick="goToMercari()">🔍 前往 Mercari 日煤比價</button>
+
+        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 15px;">
             💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
         </div>
         <a href="https://forms.gle/mMm19jakU5ts8rk78" target="_blank" class="report-link">➕ 我要回報成交價</a>
@@ -115,15 +121,14 @@
     </div>
 </div>
 
-<div class="version-tag">ver 1.5.0</div>
+<div class="version-tag">ver 1.5.1 (Mercari Enabled)</div>
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
     <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
     <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
-        感謝大家協助回報價格。<br><br>
-        此網頁才剛製作出來，目前只有基本的使用，部分內容(如直接附上圖片)會在之後新增及優化。<br><br>
-        目前彈數以「第幾彈」為查詢，避免中文稱呼多樣導致數據龐大。
+        已新增 Mercari 日煤比價按鈕！<br>
+        可自動轉換角色與彈數名稱。<br><br>
         <div class="chat-modal-links" style="margin-top:15px;">
             <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
             <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
@@ -133,6 +138,22 @@
 
 <script>
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
+
+// --- 日文對照表 ---
+const jpNameMap = {
+    "初音未來": "初音ミク", "鏡音鈴": "鏡音リン", "鏡音連": "鏡音レン", "巡音流歌": "巡音ルカ", "MEIKO": "MEIKO", "KAITO": "KAITO",
+    "星乃一歌": "星乃一歌", "天馬咲希": "天馬咲希", "望月穗波": "望月穂波", "日野森志步": "日野森志歩",
+    "花里實乃理": "花里みのり", "桐谷遙": "桐谷遥", "桃井愛莉": "桃井愛莉", "日野森雫": "日野森雫",
+    "小豆澤心羽": "小豆沢こはね", "白石杏": "白石杏", "東雲彰人": "東雲彰人", "青柳冬彌": "青柳冬弥",
+    "天馬司": "天馬司", "鳳笑夢": "鳳えむ", "草薙寧寧": "草薙寧々", "神代類": "神代類",
+    "宵崎奏": "宵崎奏", "朝比奈真冬": "朝比奈まふゆ", "東雲繪名": "東雲繪名", "曉山瑞希": "暁山瑞希"
+};
+
+const jpTypeMap = {
+    "卡面ePick一組": "エピカ", "卡面ePick金簽": "エピカ 箔押し", "卡面厚磚": "アクリルブロック",
+    "徽章": "缶バッジ", "色紙": "色紙", "活動牌": "イベントバッジ", "方型立牌": "アクリルスタンド",
+    "二星立牌": "アクリルスタンド", "貼紙": "ステッカー", "貼紙金簽": "ステッカー 箔押し"
+};
 
 function toggleChat() {
     const m = document.getElementById('chatModal');
@@ -294,6 +315,32 @@ function generateQuery() {
         dOut.innerText = "(目前尚無回報數據)";
     }
     document.getElementById('result').style.display = 'block';
+}
+
+// --- Mercari 跳轉邏輯 ---
+function goToMercari() {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
+    
+    // 轉換為日文
+    const jpChar = jpNameMap[char] || char;
+    const jpType = jpTypeMap[type] || type;
+    
+    let jpSeries = "";
+    if (series.includes("vol.")) {
+        jpSeries = series;
+    } else if (series.includes("生日系列")) {
+        // 例如 2024生日系列 -> バースデー 2024
+        jpSeries = `バースデー ${series.substring(0, 4)}`;
+    } else if (series.includes("創作者祭")) {
+        jpSeries = `クリエイターズフェスタ ${series.substring(0, 4)}`;
+    }
+
+    // 排除搜尋沒意義的關鍵字
+    const keyword = `プロセカ ${jpType} ${jpSeries} ${jpChar}`.trim();
+    const url = `https://jp.mercari.com/search?keyword=${encodeURIComponent(keyword)}&status=on_sale`;
+    window.open(url, '_blank');
 }
 
 const charSelect = document.getElementById('charName');
