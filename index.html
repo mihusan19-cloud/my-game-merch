@@ -16,7 +16,6 @@
         button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
         button#submitBtn:hover { background-color: #2980b9; }
 
-        /* Mercari 按鈕樣式 */
         .btn-mercari { width: 100%; padding: 12px; background-color: #ff0211; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: block; text-align: center; text-decoration: none; }
         .btn-mercari:hover { background-color: #d1020e; }
         
@@ -121,14 +120,15 @@
     </div>
 </div>
 
-<div class="version-tag">ver 1.5.1 (Mercari Enabled)</div>
+<div class="version-tag">ver 1.5.2</div>
 
 <div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
 <div class="chat-modal" id="chatModal">
     <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
     <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
-        已新增 Mercari 日煤比價按鈕！<br>
-        可自動轉換角色與彈數名稱。<br><br>
+        更新內容：<br>
+        - 新增「特典ePick」類別及彈數。<br>
+        - 優化日煤比價翻譯邏輯。<br><br>
         <div class="chat-modal-links" style="margin-top:15px;">
             <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
             <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
@@ -139,18 +139,17 @@
 <script>
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
 
-// --- 日文對照表 ---
 const jpNameMap = {
     "初音未來": "初音ミク", "鏡音鈴": "鏡音リン", "鏡音連": "鏡音レン", "巡音流歌": "巡音ルカ", "MEIKO": "MEIKO", "KAITO": "KAITO",
     "星乃一歌": "星乃一歌", "天馬咲希": "天馬咲希", "望月穗波": "望月穂波", "日野森志步": "日野森志歩",
     "花里實乃理": "花里みのり", "桐谷遙": "桐谷遥", "桃井愛莉": "桃井愛莉", "日野森雫": "日野森雫",
     "小豆澤心羽": "小豆沢こはね", "白石杏": "白石杏", "東雲彰人": "東雲彰人", "青柳冬彌": "青柳冬弥",
     "天馬司": "天馬司", "鳳笑夢": "鳳えむ", "草薙寧寧": "草薙寧々", "神代類": "神代類",
-    "宵崎奏": "宵崎奏", "朝比奈真冬": "朝比奈まふゆ", "東雲繪名": "東雲繪名", "曉山瑞希": "暁山瑞希"
+    "宵崎奏": "宵崎奏", "朝比奈真冬": "朝比奈まふゆ", "東雲繪名": "東雲絵名", "曉山瑞希": "暁山瑞希"
 };
 
 const jpTypeMap = {
-    "卡面ePick一組": "エピカ", "卡面ePick金簽": "エピカ 箔押し", "卡面厚磚": "アクリルブロック",
+    "卡面ePick一組": "エピカ", "卡面ePick金簽": "エピカ 箔押し", "特典ePick": "特典 エピカ", "卡面厚磚": "アクリルブロック",
     "徽章": "缶バッジ", "色紙": "色紙", "活動牌": "イベントバッジ", "方型立牌": "アクリルスタンド",
     "二星立牌": "アクリルスタンド", "貼紙": "ステッカー", "貼紙金簽": "ステッカー 箔押し"
 };
@@ -175,7 +174,8 @@ function updateFlow(step) {
         if (char) {
             const typeSelect = document.getElementById('itemType');
             typeSelect.innerHTML = '<option value="">請選擇類型...</option>';
-            let list = groups.includes(char) ? ["2024感謝祭", "2025感謝祭", "劇場版"] : ["卡面ePick一組", "卡面ePick金簽", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "方型立牌", "二星立牌", "貼紙", "貼紙金簽", "2024感謝祭", "2025感謝祭", "劇場版"];
+            // 新增 特典ePick 到列表
+            let list = groups.includes(char) ? ["2024感謝祭", "2025感謝祭", "劇場版"] : ["卡面ePick一組", "卡面ePick金簽", "特典ePick", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "方型立牌", "二星立牌", "貼紙", "貼紙金簽", "2024感謝祭", "2025感謝祭", "劇場版"];
             list.forEach(t => { let o = document.createElement('option'); o.value = t; o.text = t; typeSelect.appendChild(o); });
             document.getElementById('field-type').style.display = 'block';
         }
@@ -252,7 +252,7 @@ function updateSeriesOptions(type) {
             if (type !== "色紙") ["2023創作者祭", "2024創作者祭", "2025創作者祭"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
         }
         
-        if (type.includes("ePick")) max = 26; 
+        if (type.includes("ePick")) max = 26; // 特典ePick 彈數設定為 vol.26
         else if (type === "卡面厚磚") max = 72; 
         else if (type === "徽章") max = 50; 
         else if (type === "色紙") max = 59; 
@@ -267,6 +267,7 @@ function updateBoxOptions(type) {
     let opts = ["無分盒"];
     if (type === "活動牌") opts = ["A", "B"];
     else if (type === "其他卡面徽章") opts = ["A", "B", "特典A盒", "特典B盒"];
+    // 特典ePick 分盒選項新增 A, B, C
     else if (type === "徽章" || type.includes("ePick") || type === "貼紙" || type === "貼紙金簽") opts = ["A", "B", "C", "無分盒"];
     else if (type === "劇場版團體") opts = ["特典"];
     opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; b.appendChild(o); });
@@ -317,27 +318,18 @@ function generateQuery() {
     document.getElementById('result').style.display = 'block';
 }
 
-// --- Mercari 跳轉邏輯 ---
 function goToMercari() {
     const char = document.getElementById('charName').value;
     const type = document.getElementById('itemType').value;
     const series = document.getElementById('seriesSelect').value;
-    
-    // 轉換為日文
     const jpChar = jpNameMap[char] || char;
     const jpType = jpTypeMap[type] || type;
     
     let jpSeries = "";
-    if (series.includes("vol.")) {
-        jpSeries = series;
-    } else if (series.includes("生日系列")) {
-        // 例如 2024生日系列 -> バースデー 2024
-        jpSeries = `バースデー ${series.substring(0, 4)}`;
-    } else if (series.includes("創作者祭")) {
-        jpSeries = `クリエイターズフェスタ ${series.substring(0, 4)}`;
-    }
+    if (series.includes("vol.")) jpSeries = series;
+    else if (series.includes("生日系列")) jpSeries = `バースデー ${series.substring(0, 4)}`;
+    else if (series.includes("創作者祭")) jpSeries = `クリエイターズフェスタ ${series.substring(0, 4)}`;
 
-    // 排除搜尋沒意義的關鍵字
     const keyword = `プロセカ ${jpType} ${jpSeries} ${jpChar}`.trim();
     const url = `https://jp.mercari.com/search?keyword=${encodeURIComponent(keyword)}&status=on_sale`;
     window.open(url, '_blank');
