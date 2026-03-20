@@ -1,21 +1,343 @@
-{
-  "short_name": "mimunity",
-  "name": "mimunity",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": "index.html",
-  "background_color": "#f0f2f5",
-  "display": "standalone",
-  "scope": "/",
-  "theme_color": "#1877f2"
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界計畫社團行情比價</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; position: relative; min-height: 100vh; margin: 0; box-sizing: border-box; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 50px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .field { margin-bottom: 20px; display: none; } 
+        #field-char { display: block; } 
+        label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        
+        button#submitBtn { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: none; }
+        button#submitBtn:hover { background-color: #2980b9; }
+
+        .btn-mercari { width: 100%; padding: 12px; background-color: #ff0211; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; display: block; text-align: center; text-decoration: none; }
+        .btn-mercari:hover { background-color: #d1020e; }
+        
+        #result { margin-top: 25px; padding: 20px; background-color: #e8f4fd; border-left: 5px solid #3498db; border-radius: 4px; display: none; }
+        .price-tag { font-size: 1.5em; color: #e74c3c; font-weight: bold; margin: 10px 0; }
+        .report-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-size: 0.9em; border: 1px solid #3498db; padding: 5px 10px; border-radius: 4px; }
+        
+        .helper-link { display: block; text-align: center; margin-top: 15px; color: #3498db; font-size: 0.9em; text-decoration: none; font-weight: bold; }
+        .helper-link:hover { text-decoration: underline; }
+
+        .info-footer { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .info-footer h3 { font-size: 16px; color: #555; margin-bottom: 10px; }
+        .info-footer p { font-size: 14px; color: #777; line-height: 1.8; margin: 0; }
+        
+        .version-tag { position: fixed; bottom: 10px; left: 15px; font-size: 10px; color: #aaa; opacity: 0.6; letter-spacing: 1px; user-select: none; z-index: 999; }
+        
+        .chat-widget { position: fixed; bottom: 40px; right: 20px; cursor: pointer; z-index: 1000; transition: transform 0.3s; }
+        .chat-widget:hover { transform: scale(1.1); }
+        .chat-widget img { width: 60px; height: 60px; min-width: 60px; min-height: 60px; border-radius: 50%; border: 3px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.2); object-fit: cover; background-color: #fff; }
+        
+        .chat-modal { display: none; position: fixed; bottom: 110px; right: 20px; width: 300px; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1001; padding: 20px; box-sizing: border-box; }
+        .chat-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .chat-modal-links a { display: block; color: #3498db; text-decoration: none; margin-bottom: 8px; font-weight: bold; border-left: 3px solid #3498db; padding-left: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>PJSK 社團行情查詢</h2>
+    
+    <div class="field" id="field-char">
+        <label>1. 選擇角色或團體</label>
+        <select id="charName" onchange="updateFlow('char')">
+            <option value="">請選擇...</option>
+        </select>
+    </div>
+
+    <div class="field" id="field-type">
+        <label>2. 周邊類型</label>
+        <select id="itemType" onchange="updateFlow('type')">
+            <option value="">請選擇類型...</option>
+        </select>
+    </div>
+
+    <div class="field" id="field-miku-type">
+        <label>選擇版本</label>
+        <select id="mikuVersion" onchange="updateFlow('miku')">
+            <option value="">請選擇...</option>
+            <option value="好蔥">好蔥</option>
+            <option value="壞蔥">壞蔥</option>
+        </select>
+    </div>
+
+    <div class="field" id="field-series">
+        <label id="seriesLabel">3. 第幾彈 / 例如: vol.1</label>
+        <select id="seriesSelect" onchange="updateFlow('series')">
+            <option value="">請選擇彈數...</option>
+        </select>
+    </div>
+
+    <div class="field" id="field-flower">
+        <label>選擇分類</label>
+        <select id="flowerType" onchange="updateFlow('flower')">
+            <option value="">請選擇...</option>
+        </select>
+    </div>
+
+    <div class="field" id="field-box">
+        <label id="boxLabel">分盒/特典</label>
+        <select id="boxType" onchange="updateFlow('box')">
+            <option value="">請選擇分盒/特典...</option>
+        </select>
+    </div>
+
+    <button id="submitBtn" onclick="generateQuery()">查詢社團行情</button>
+
+    <a href="https://luki-dex.github.io/prsk-good/" target="_blank" class="helper-link">🔍 前往「PJSK 周邊圖鑑」查詢名稱</a>
+
+    <div id="result">
+        <strong>查詢商品：</strong><br>
+        <span id="outputName" style="font-weight: bold; color: #2c3e50;"></span>
+        <div id="priceOutput" class="price-tag">NT$ ---</div>
+        <div id="dataCount" style="font-size: 0.8em; color: #666; margin-bottom: 10px;"></div>
+        
+        <button class="btn-mercari" onclick="goToMercari()">🔍 前往 Mercari 日煤比價</button>
+
+        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #ccc; padding-top: 10px; margin-top: 15px;">
+            💡 <strong>數據邏輯：</strong> 採計臉書社團成交「眾數」，排除盜版低價干擾。
+        </div>
+        <a href="https://forms.gle/mMm19jakU5ts8rk78" target="_blank" class="report-link">➕ 我要回報成交價</a>
+    </div>
+
+    <div class="info-footer">
+        <h3>📌 使用小提醒</h3>
+        <p>
+            1. 查詢時請確保選單選項正確，以免抓不到數據。<br>
+            2. 價格僅供參考，實際交易請以社團當下狀況為準。<br>
+            3. 若發現異常數據，歡迎透過表單回報修正。<br>
+            4. 感謝プロセカ週邊圖鑑授權使用以及原汁原味芒果協助整理資料。<br>
+            5. 再販商品請斟酌參考
+        </p>
+    </div>
+</div>
+
+<div class="version-tag">ver 1.5.2</div>
+
+<div class="chat-widget" onclick="toggleChat()"><img src="chat-icon.jpg" alt="小助手"></div>
+<div class="chat-modal" id="chatModal">
+    <div class="chat-modal-header"><h4>小助手通知</h4><span onclick="toggleChat()" style="cursor:pointer; font-size:24px;">&times;</span></div>
+    <div class="chat-modal-content" style="font-size:13px; line-height:1.6; color:#555;">
+        更新內容：<br>
+        - 新增「特典ePick」類別及彈數。<br>
+        - 優化日煤比價翻譯邏輯。<br><br>
+        <div class="chat-modal-links" style="margin-top:15px;">
+            <a href="https://forms.gle/29PwP13TMj6GaU9L7" target="_blank">💡 優化建議</a>
+            <a href="https://forms.gle/ifimYn8sdVZ84PCm9" target="_blank">🐛 Bug 回報</a>
+        </div>
+    </div>
+</div>
+
+<script>
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrbVCqQNIb5RRW54B4-FVX8ATgD2Lft2NvJ2EM4Zd2NhArWtFPWsuIUiOCF2-H757NbOadX-sFpGDy/pub?gid=1481580400&single=true&output=csv";
+
+const jpNameMap = {
+    "初音未來": "初音ミク", "鏡音鈴": "鏡音リン", "鏡音連": "鏡音レン", "巡音流歌": "巡音ルカ", "MEIKO": "MEIKO", "KAITO": "KAITO",
+    "星乃一歌": "星乃一歌", "天馬咲希": "天馬咲希", "望月穗波": "望月穂波", "日野森志步": "日野森志歩",
+    "花里實乃理": "花里みのり", "桐谷遙": "桐谷遥", "桃井愛莉": "桃井愛莉", "日野森雫": "日野森雫",
+    "小豆澤心羽": "小豆沢こはね", "白石杏": "白石杏", "東雲彰人": "東雲彰人", "青柳冬彌": "青柳冬弥",
+    "天馬司": "天馬司", "鳳笑夢": "鳳えむ", "草薙寧寧": "草薙寧々", "神代類": "神代類",
+    "宵崎奏": "宵崎奏", "朝比奈真冬": "朝比奈まふゆ", "東雲繪名": "東雲絵名", "曉山瑞希": "暁山瑞希"
+};
+
+const jpTypeMap = {
+    "卡面ePick一組": "エピカ", "卡面ePick金簽": "エピカ 箔押し", "特典ePick": "特典 エピカ", "卡面厚磚": "アクリルブロック",
+    "徽章": "缶バッジ", "色紙": "色紙", "活動牌": "イベントバッジ", "方型立牌": "アクリルスタンド",
+    "二星立牌": "アクリルスタンド", "貼紙": "ステッカー", "貼紙金簽": "ステッカー 箔押し"
+};
+
+function toggleChat() {
+    const m = document.getElementById('chatModal');
+    m.style.display = (m.style.display === 'block') ? 'none' : 'block';
 }
+
+const characters = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見", "初音未來", "鏡音鈴", "鏡音連", "巡音流歌", "MEIKO", "KAITO", "星乃一歌", "天馬咲希", "望月穗波", "日野森志步", "花里實乃理", "桐谷遙", "桃井愛莉", "日野森雫", "小豆澤心羽", "白石杏", "東雲彰人", "青柳冬彌", "天馬司", "鳳笑夢", "草薙寧寧", "神代類", "宵崎奏", "朝比奈真冬", "東雲繪名", "曉山瑞希"];
+const groups = ["Virtual Singer", "Leo/need", "MORE MORE JUMP!", "Vivid BAD SQUAD", "Wonderlands×Showtime", "25點，Nightcord見"];
+let marketData = [];
+
+function updateFlow(step) {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
+    const hide = (ids) => ids.forEach(id => document.getElementById(id).style.display = 'none');
+
+    if (step === 'char') {
+        hide(['field-type', 'field-series', 'field-miku-type', 'field-flower', 'field-box', 'submitBtn']);
+        if (char) {
+            const typeSelect = document.getElementById('itemType');
+            typeSelect.innerHTML = '<option value="">請選擇類型...</option>';
+            // 新增 特典ePick 到列表
+            let list = groups.includes(char) ? ["2024感謝祭", "2025感謝祭", "劇場版"] : ["卡面ePick一組", "卡面ePick金簽", "特典ePick", "卡面厚磚", "徽章", "色紙", "其他卡面徽章", "活動牌", "方型立牌", "二星立牌", "貼紙", "貼紙金簽", "2024感謝祭", "2025感謝祭", "劇場版"];
+            list.forEach(t => { let o = document.createElement('option'); o.value = t; o.text = t; typeSelect.appendChild(o); });
+            document.getElementById('field-type').style.display = 'block';
+        }
+    } 
+    else if (step === 'type') {
+        hide(['field-series', 'field-miku-type', 'field-flower', 'field-box', 'submitBtn']);
+        if (type === "劇場版") {
+            if (char === "初音未來") document.getElementById('field-miku-type').style.display = 'block';
+            else if (groups.includes(char)) { updateBoxOptions("劇場版團體"); document.getElementById('field-box').style.display = 'block'; }
+            else { updateFlowerOptions("劇場版一般"); document.getElementById('field-flower').style.display = 'block'; }
+        } else if (type === "2024感謝祭" || type === "2025感謝祭") {
+            updateFlowerOptions(type); document.getElementById('field-flower').style.display = 'block';
+        } else if (type === "方型立牌") {
+            updateFlowerOptions("方型立牌"); document.getElementById('field-flower').style.display = 'block';
+        } else if (groups.includes(char)) {
+            document.getElementById('submitBtn').style.display = 'block';
+        } else {
+            updateSeriesOptions(type); document.getElementById('field-series').style.display = 'block';
+        }
+    }
+    else if (step === 'miku') {
+        hide(['field-flower', 'field-box', 'submitBtn']);
+        if (document.getElementById('mikuVersion').value) { updateFlowerOptions(document.getElementById('mikuVersion').value === "好蔥" ? "劇場版好蔥" : "劇場版壞蔥"); document.getElementById('field-flower').style.display = 'block'; }
+    }
+    else if (step === 'series') {
+        hide(['field-flower', 'field-box', 'submitBtn']);
+        if (type === '色紙') {
+            if (series.includes("生日系列")) {
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                updateFlowerOptions("色紙"); 
+                document.getElementById('field-flower').style.display = 'block';
+            }
+        }
+        else if (type === '二星立牌') { document.getElementById('submitBtn').style.display = 'block'; }
+        else { updateBoxOptions(type); document.getElementById('field-box').style.display = 'block'; }
+    }
+    else if (step === 'flower' || step === 'box') {
+        document.getElementById('submitBtn').style.display = 'block';
+    }
+}
+
+function updateFlowerOptions(mode) {
+    const f = document.getElementById('flowerType');
+    f.innerHTML = '<option value="">請選擇...</option>';
+    let opts = [];
+    if (mode === "2024感謝祭" || mode === "2025感謝祭") {
+        opts = ["普卡", "燙金", (mode === "2024感謝祭" ? "心磚" : "鑽石磚"), "立牌", "徽章"];
+    } 
+    else if (mode === "色紙") opts = ["特訓前", "特訓後", "整組"];
+    else if (mode === "方型立牌") opts = ["2022年生日系列", "2023年生日系列", "2024年生日系列"];
+    else if (mode === "劇場版一般" || mode === "劇場版壞蔥") {
+        opts = ["ePick普卡", "ePick簽卡", "徽章", "入場特典色紙"];
+        if (mode === "劇場版壞蔥") opts.push("ePick特典", "劇場版羈絆牌(白蔥和壞蔥)");
+    } else if (mode === "劇場版好蔥") {
+        opts = ["徽章", "入場特典色紙"];
+    }
+    opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; f.appendChild(o); });
+}
+
+function updateSeriesOptions(type) {
+    const s = document.getElementById('seriesSelect');
+    s.innerHTML = '<option value="">請選擇彈數...</option>';
+    let max = 66;
+    if (type === "二星立牌") {
+        max = 30;
+    } else if (type === "貼紙" || type === "貼紙金簽") {
+        max = 10;
+        ["2023生日系列", "2024生日系列"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
+    } else {
+        const birthdaySeries = ["2022生日系列", "2023生日系列", "2024生日系列"];
+        if (type.includes("ePick") || type === "徽章" || type === "色紙") {
+            birthdaySeries.forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
+            if (type !== "色紙") ["2023創作者祭", "2024創作者祭", "2025創作者祭"].forEach(b => { let o = document.createElement('option'); o.value = b; o.text = b; s.appendChild(o); });
+        }
+        
+        if (type.includes("ePick")) max = 26; // 特典ePick 彈數設定為 vol.26
+        else if (type === "卡面厚磚") max = 72; 
+        else if (type === "徽章") max = 50; 
+        else if (type === "色紙") max = 59; 
+        else if (type === "活動牌") max = 18;
+    }
+    for (let i = 1; i <= max; i++) { let o = document.createElement('option'); o.value = `vol.${i}`; o.text = `vol.${i}`; s.appendChild(o); }
+}
+
+function updateBoxOptions(type) {
+    const b = document.getElementById('boxType');
+    b.innerHTML = '<option value="">請選擇分盒/特典...</option>';
+    let opts = ["無分盒"];
+    if (type === "活動牌") opts = ["A", "B"];
+    else if (type === "其他卡面徽章") opts = ["A", "B", "特典A盒", "特典B盒"];
+    // 特典ePick 分盒選項新增 A, B, C
+    else if (type === "徽章" || type.includes("ePick") || type === "貼紙" || type === "貼紙金簽") opts = ["A", "B", "C", "無分盒"];
+    else if (type === "劇場版團體") opts = ["特典"];
+    opts.forEach(v => { let o = document.createElement('option'); o.value = v; o.text = v; b.appendChild(o); });
+}
+
+async function loadData() {
+    try {
+        const res = await fetch(csvUrl);
+        const data = await res.text();
+        const rows = data.split('\n').slice(1);
+        marketData = rows.map(r => {
+            const c = r.split(',');
+            return { name: c[6]?.trim(), price: parseInt(c[5]?.trim()) };
+        }).filter(item => item.name && !isNaN(item.price)); 
+    } catch (e) { console.error("載入失敗", e); }
+}
+
+function generateQuery() {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
+    const flower = document.getElementById('flowerType').value;
+    const box = document.getElementById('boxType').value;
+    const mikuV = document.getElementById('mikuVersion').value;
+
+    let parts = [char, type];
+    if (mikuV) parts.push(mikuV);
+    if (series) parts.push(series);
+    if (flower && document.getElementById('field-flower').style.display !== 'none') parts.push(flower);
+    if (box && box !== "無分盒" && document.getElementById('field-box').style.display !== 'none') parts.push(box);
+    
+    let fullName = parts.filter(p => p && p.trim() !== "").join('-');
+    document.getElementById('outputName').innerText = fullName;
+    const pOut = document.getElementById('priceOutput');
+    const dOut = document.getElementById('dataCount');
+
+    const prices = marketData.filter(i => i.name === fullName).map(i => i.price);
+    
+    if (prices.length > 0) {
+        const modeMap = {}; let max = 0, mode = prices[0];
+        prices.forEach(p => { modeMap[p] = (modeMap[p] || 0) + 1; if(modeMap[p] > max) { max = modeMap[p]; mode = p; } });
+        pOut.innerText = `NT$ ${mode}`;
+        dOut.innerText = `(根據 ${prices.length} 筆回報計算)`;
+    } else {
+        pOut.innerText = "NT$ ---"; 
+        dOut.innerText = "(目前尚無回報數據)";
+    }
+    document.getElementById('result').style.display = 'block';
+}
+
+function goToMercari() {
+    const char = document.getElementById('charName').value;
+    const type = document.getElementById('itemType').value;
+    const series = document.getElementById('seriesSelect').value;
+    const jpChar = jpNameMap[char] || char;
+    const jpType = jpTypeMap[type] || type;
+    
+    let jpSeries = "";
+    if (series.includes("vol.")) jpSeries = series;
+    else if (series.includes("生日系列")) jpSeries = `バースデー ${series.substring(0, 4)}`;
+    else if (series.includes("創作者祭")) jpSeries = `クリエイターズフェスタ ${series.substring(0, 4)}`;
+
+    const keyword = `プロセカ ${jpType} ${jpSeries} ${jpChar}`.trim();
+    const url = `https://jp.mercari.com/search?keyword=${encodeURIComponent(keyword)}&status=on_sale`;
+    window.open(url, '_blank');
+}
+
+const charSelect = document.getElementById('charName');
+characters.forEach(n => { let o = document.createElement('option'); o.value = n; o.text = n; charSelect.appendChild(o); });
+loadData();
+</script>
+</body>
+</html>
